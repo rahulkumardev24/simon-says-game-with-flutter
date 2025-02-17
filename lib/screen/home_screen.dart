@@ -13,13 +13,16 @@ class HomeScreen extends StatefulWidget {
 class _SimonSaysGameState extends State<HomeScreen> {
   List<String> gameSeq = [];
   List<String> userSeq = [];
-  List<String> colors = ["red", "yellow", "green", "blue"];
+  List<String> colors = ["blue", "green", "red", "yellow"];
   bool started = false;
   int level = 0;
   bool userTurn = false;
   bool gameOver = false;
   int score = 0;
   int maxScore = 0;
+
+  bool isMute = true;
+  bool isLight = true ;
 
   Map<String, bool> flashMap = {
     "red": false,
@@ -177,13 +180,57 @@ class _SimonSaysGameState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     mqData = MediaQuery.of(context);
     return Scaffold(
+      /// --------------------APPBAR------------------------///
       appBar: AppBar(
         backgroundColor: Colors.white,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset("assets/icon/logo.png"),
+        ),
         title: Text(
           "Simon says",
           style: myTextStyle24(),
         ),
         centerTitle: true,
+        actions: [
+          /// Volume
+          InkWell(
+              onTap: () {
+                setState(() {
+                  isMute = !isMute;
+                });
+              },
+              child: isMute
+                  ? const Icon(
+                      Icons.volume_up_outlined,
+                      size: 30,
+                    )
+                  : const Icon(
+                      Icons.volume_off_rounded,
+                      size: 30,
+                    )) ,
+          /// light and dark
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: InkWell(
+                onTap: () {
+                  setState(() {
+                    isLight = !isLight;
+                  });
+                },
+                child: isLight
+                    ? const Icon(
+                        Icons.light_mode_rounded,
+                        size: 30,
+                  color: Colors.orange,
+                      )
+                    : const Icon(
+                        Icons.dark_mode_rounded,
+                        size: 30,
+                  color: Colors.blueAccent,
+                      )),
+          ) ,
+        ],
       ),
       backgroundColor: gameOver ? Colors.red : Colors.white,
       body: Center(
@@ -228,22 +275,26 @@ class _SimonSaysGameState extends State<HomeScreen> {
               "Max Score: $maxScore", // Show the updated score
               style: myTextStyle18(),
             ),
-            ElevatedButton(
-              onPressed: started
-                  ? null // / Disable button when game has started
-                  : () {
-                startGame();
-                audioPlayer.play(AssetSource('audio/start.mp3'));
-              },
-              child: Text("Start Game"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: started ? Colors.grey : Colors.blue, // Change color when disabled
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            /// -------------------- Game Start ----------------------------///
+            SizedBox(
+           width: mqData!.size.width * 0.8,
+              child: ElevatedButton(
+                onPressed: started
+                    ? null
+                    : () {
+                        startGame();
+                        audioPlayer.play(AssetSource('audio/start.mp3'));
+                      },
+                style: ElevatedButton.styleFrom(
+
+                  backgroundColor: started
+                      ? Colors.grey
+                      : Colors.blue, // Change color when disabled
+                  padding: EdgeInsets.symmetric(vertical: 6)
+                ),
+                child: Text("Start Game" , style: myTextStyle24(fontFamily: "secondary"),),
               ),
-            )
-
-
-            ,
+            ),
           ],
         ),
       ),
@@ -261,37 +312,37 @@ class _SimonSaysGameState extends State<HomeScreen> {
         btnColor = Colors.red;
 
         borderRadius = const BorderRadius.only(
-          topLeft: Radius.circular(100),
-          topRight: Radius.circular(30),
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(10),
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(10),
+          bottomLeft: Radius.circular(100),
+          bottomRight: Radius.circular(20),
         );
         break;
       case "yellow":
         btnColor = Colors.yellow;
         borderRadius = const BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(100),
-          bottomLeft: Radius.circular(10),
-          bottomRight: Radius.circular(30),
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(20),
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(100),
         );
         break;
       case "green":
         btnColor = Colors.greenAccent;
         borderRadius = const BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(10),
-          bottomLeft: Radius.circular(100),
-          bottomRight: Radius.circular(30),
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(100),
+          bottomLeft: Radius.circular(10),
+          bottomRight: Radius.circular(20),
         );
         break;
       case "blue":
         btnColor = Colors.blueAccent;
         borderRadius = const BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(30),
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(100),
+          topLeft: Radius.circular(100),
+          topRight: Radius.circular(20),
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(10),
         );
         break;
       default:
