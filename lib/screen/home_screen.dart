@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
+
+import '../provider/them_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -22,7 +25,7 @@ class _SimonSaysGameState extends State<HomeScreen> {
   int maxScore = 0;
 
   bool isMute = true;
-  bool isLight = true ;
+  bool isLight = true;
 
   Map<String, bool> flashMap = {
     "red": false,
@@ -40,8 +43,6 @@ class _SimonSaysGameState extends State<HomeScreen> {
     loadMaxScore();
     loadMute();
   }
-
-
 
   /// -----Game Start function-----------///
   void startGame() {
@@ -116,7 +117,7 @@ class _SimonSaysGameState extends State<HomeScreen> {
   void userPress(String color) {
     if (!userTurn) return;
 
-    if(isMute) audioPlayer.play(AssetSource('audio/tap.mp3'));
+    if (isMute) audioPlayer.play(AssetSource('audio/tap.mp3'));
 
     setState(() {
       userSeq.add(color);
@@ -149,7 +150,7 @@ class _SimonSaysGameState extends State<HomeScreen> {
 
   /// game over functions
   void gameOverSequence() {
-   if(isMute)  audioPlayer.play(AssetSource("audio/over.mp3"));
+    if (isMute) audioPlayer.play(AssetSource("audio/over.mp3"));
     setState(() {
       gameOver = true;
       started = false;
@@ -159,7 +160,6 @@ class _SimonSaysGameState extends State<HomeScreen> {
       setState(() {
         gameSeq.clear();
         userSeq.clear();
-        gameOver = false;
       });
     });
   }
@@ -181,9 +181,9 @@ class _SimonSaysGameState extends State<HomeScreen> {
   }
 
   /// -------------- Mute and unMute functions ------------------- ///
-  void  saveMute() async {
-    SharedPreferences preferences =  await SharedPreferences.getInstance() ;
-    await preferences.setBool("checkMute", isMute) ;
+  void saveMute() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setBool("checkMute", isMute);
   }
 
   void loadMute() async {
@@ -193,31 +193,28 @@ class _SimonSaysGameState extends State<HomeScreen> {
     });
   }
 
-
   MediaQueryData? mqData;
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     mqData = MediaQuery.of(context);
     return Scaffold(
       /// --------------------APPBAR------------------------///
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.asset("assets/icon/logo.png"),
-        ),
         title: Text(
           "Simon says",
-          style: myTextStyle24(),
+          style: myTextStyle24(context,
+              fontColor: Colors.white, fontFamily: "secondary"),
         ),
-        centerTitle: true,
+        backgroundColor: themeProvider.isDark
+            ? const Color(0xff161A1D)
+            : const Color(0xff5E4DB2),
         actions: [
           /// Volume
           InkWell(
               onTap: () {
                 setState(() {
                   isMute = !isMute;
-
                 });
                 saveMute();
               },
@@ -225,49 +222,95 @@ class _SimonSaysGameState extends State<HomeScreen> {
                   ? const Icon(
                       Icons.volume_up_outlined,
                       size: 30,
+                      color: Colors.white70,
                     )
                   : const Icon(
                       Icons.volume_off_rounded,
                       size: 30,
-                    )) ,
-          /// light and dark
+                      color: Colors.white70,
+                    )),
+
+          /// light and dark them
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: InkWell(
-                onTap: () {
-                  setState(() {
-                    isLight = !isLight;
-                  });
-                },
-                child: isLight
-                    ? const Icon(
-                        Icons.light_mode_rounded,
-                        size: 30,
-                  color: Colors.orange,
-                      )
-                    : const Icon(
-                        Icons.dark_mode_rounded,
-                        size: 30,
-                  color: Colors.blueAccent,
-                      )),
-          ) ,
+            child: Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return InkWell(
+                  onTap: () {
+                    themeProvider.toggleTheme();
+                  },
+                  child: Icon(
+                    themeProvider.isDark
+                        ? Icons.dark_mode_rounded
+                        : Icons.light_mode_rounded,
+                    size: 30, // Adjust the size if needed
+                    color: themeProvider.isDark
+                        ? const Color(0xff5E4DB2)
+                        : Colors.orange,
+                  ),
+                );
+              },
+            ),
+          )
         ],
       ),
-      backgroundColor: gameOver ? Colors.red : Colors.white,
+      backgroundColor: themeProvider.isDark
+          ? const Color(0xff161A1D)
+          : const Color(0xffe4d9ff),
+      // backgroundColor: gameOver ? Colors.red : Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              gameOver
-                  ? "Game Over! Tap to Restart"
-                  : "Simon Says - Level $level",
-              style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Score: $score", // Show the updated score
+                    style: myTextStyle24(context),
+                  ),
+                  Text(
+                    "Max Score: $maxScore",
+                    style: myTextStyle24(context),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
+            gameOver
+                ? Text(
+                    "Game over plz Restart",
+                    style: myTextStyle24(context,
+                        fontColor: Colors.red, fontFamily: "secondary"),
+                  )
+                : Container(
+                    width: mqData!.size.width * 0.9,
+                    height: mqData!.size.height * 0.05,
+                    decoration: const BoxDecoration(
+                        borderRadius: BorderRadiusDirectional.only(
+                            topEnd: Radius.circular(2),
+                            topStart: Radius.circular(2),
+                            bottomEnd: Radius.circular(20),
+                            bottomStart: Radius.circular(20)),
+                        color: Color(0xffB8ACF6)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        /// --------- level----------------------///
+                        Text(
+                          "Leve $level",
+                          style: myTextStyle24(context),
+                        ),
+                      ],
+                    ),
+                  ),
+
+            SizedBox(
+              height: mqData!.size.height * 0.03,
+            ),
 
             ///---------------BOX------------------///
             Padding(
@@ -287,33 +330,36 @@ class _SimonSaysGameState extends State<HomeScreen> {
               ),
             ),
 
-            const SizedBox(height: 30),
-            Text(
-              "Score: $score", // Show the updated score
-              style: myTextStyle24(),
+            SizedBox(
+              height: mqData!.size.height * 0.03,
             ),
-            Text(
-              "Max Score: $maxScore", // Show the updated score
-              style: myTextStyle18(),
-            ),
+
             /// -------------------- Game Start ----------------------------///
             SizedBox(
-           width: mqData!.size.width * 0.8,
+              width: mqData!.size.width * 0.9,
               child: ElevatedButton(
                 onPressed: started
                     ? null
                     : () {
                         startGame();
-                       if(isMute) audioPlayer.play(AssetSource('audio/start.mp3'));
+                        if (isMute) {
+                          audioPlayer.play(AssetSource('audio/start.mp3'));
+                        }
                       },
                 style: ElevatedButton.styleFrom(
-
-                  backgroundColor: started
-                      ? Colors.grey
-                      : Colors.blue, // Change color when disabled
-                  padding: const EdgeInsets.symmetric(vertical: 6)
+                    backgroundColor:
+                        started ? Colors.grey : const Color(0xff5E4DB2),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadiusDirectional.only(
+                            topEnd: Radius.circular(20),
+                            topStart: Radius.circular(20),
+                            bottomEnd: Radius.circular(2),
+                            bottomStart: Radius.circular(2))),
+                    padding: const EdgeInsets.symmetric(vertical: 6)),
+                child: Text(
+                  "Start Game",
+                  style: myTextStyle24(context, fontColor: Colors.white70),
                 ),
-                child: Text("Start Game" , style: myTextStyle24(fontFamily: "secondary"),),
               ),
             ),
           ],
