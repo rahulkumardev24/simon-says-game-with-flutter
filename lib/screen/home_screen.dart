@@ -38,21 +38,10 @@ class _SimonSaysGameState extends State<HomeScreen> {
   void initState() {
     super.initState();
     loadMaxScore();
+    loadMute();
   }
 
-  /// Load max score from SharedPreferences
-  void loadMaxScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      maxScore = prefs.getInt('maxScore') ?? 0;
-    });
-  }
 
-  /// Save max score to SharedPreferences
-  void saveMaxScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('maxScore', maxScore);
-  }
 
   /// -----Game Start function-----------///
   void startGame() {
@@ -127,7 +116,7 @@ class _SimonSaysGameState extends State<HomeScreen> {
   void userPress(String color) {
     if (!userTurn) return;
 
-    audioPlayer.play(AssetSource('audio/tap.mp3'));
+    if(isMute) audioPlayer.play(AssetSource('audio/tap.mp3'));
 
     setState(() {
       userSeq.add(color);
@@ -160,7 +149,7 @@ class _SimonSaysGameState extends State<HomeScreen> {
 
   /// game over functions
   void gameOverSequence() {
-    audioPlayer.play(AssetSource("audio/over.mp3"));
+   if(isMute)  audioPlayer.play(AssetSource("audio/over.mp3"));
     setState(() {
       gameOver = true;
       started = false;
@@ -174,6 +163,36 @@ class _SimonSaysGameState extends State<HomeScreen> {
       });
     });
   }
+
+  ///------------------ SHARED PREFERENCES--------------------------///
+
+  /// Load max score from SharedPreferences
+  void loadMaxScore() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      maxScore = prefs.getInt('maxScore') ?? 0;
+    });
+  }
+
+  /// Save max score to SharedPreferences
+  void saveMaxScore() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('maxScore', maxScore);
+  }
+
+  /// -------------- Mute and unMute functions ------------------- ///
+  void  saveMute() async {
+    SharedPreferences preferences =  await SharedPreferences.getInstance() ;
+    await preferences.setBool("checkMute", isMute) ;
+  }
+
+  void loadMute() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      isMute = preferences.getBool("checkMute") ?? true;
+    });
+  }
+
 
   MediaQueryData? mqData;
   @override
@@ -198,7 +217,9 @@ class _SimonSaysGameState extends State<HomeScreen> {
               onTap: () {
                 setState(() {
                   isMute = !isMute;
+
                 });
+                saveMute();
               },
               child: isMute
                   ? const Icon(
@@ -283,14 +304,14 @@ class _SimonSaysGameState extends State<HomeScreen> {
                     ? null
                     : () {
                         startGame();
-                        audioPlayer.play(AssetSource('audio/start.mp3'));
+                       if(isMute) audioPlayer.play(AssetSource('audio/start.mp3'));
                       },
                 style: ElevatedButton.styleFrom(
 
                   backgroundColor: started
                       ? Colors.grey
                       : Colors.blue, // Change color when disabled
-                  padding: EdgeInsets.symmetric(vertical: 6)
+                  padding: const EdgeInsets.symmetric(vertical: 6)
                 ),
                 child: Text("Start Game" , style: myTextStyle24(fontFamily: "secondary"),),
               ),
