@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simon_say_game/helper/my_dialogs.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 
 import '../provider/them_provider.dart';
@@ -14,6 +16,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _SimonSaysGameState extends State<HomeScreen> {
+  final String playStoreLink =
+      "https://play.google.com/store/apps/details?id=com.appcreatorrahul.simonsay";
+
   List<String> gameSeq = [];
   List<String> userSeq = [];
   List<String> colors = ["blue", "green", "red", "yellow"];
@@ -193,6 +198,7 @@ class _SimonSaysGameState extends State<HomeScreen> {
     });
   }
 
+
   MediaQueryData? mqData;
   @override
   Widget build(BuildContext context) {
@@ -201,6 +207,7 @@ class _SimonSaysGameState extends State<HomeScreen> {
     return Scaffold(
       /// --------------------APPBAR------------------------///
       appBar: AppBar(
+        /// title
         title: Text(
           "Simon says",
           style: myTextStyle24(context,
@@ -251,13 +258,28 @@ class _SimonSaysGameState extends State<HomeScreen> {
                 );
               },
             ),
-          )
+          ),
+
+          /// Share button
+          // Usage in IconButton:
+          IconButton(
+            onPressed: () => MyDialogs.shareApp(context),
+            icon: Icon(
+              Icons.share,
+              size: mqData!.size.width * 0.08,
+              color: Colors.white,
+            ),
+          ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(onPressed: (){
+        MyDialogs.shareApp(context);
+      }),
       backgroundColor: themeProvider.isDark
           ? const Color(0xff161A1D)
           : const Color(0xffe4d9ff),
       // backgroundColor: gameOver ? Colors.red : Colors.white,
+      /// ---- body ---- ///
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -357,7 +379,7 @@ class _SimonSaysGameState extends State<HomeScreen> {
                             bottomStart: Radius.circular(2))),
                     padding: const EdgeInsets.symmetric(vertical: 6)),
                 child: Text(
-                  "Start Game",
+                  gameOver ? "Restart" : "Start Game",
                   style: myTextStyle24(context, fontColor: Colors.white70),
                 ),
               ),

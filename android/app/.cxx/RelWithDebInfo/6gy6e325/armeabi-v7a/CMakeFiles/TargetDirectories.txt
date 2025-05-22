@@ -1,0 +1,2 @@
+C:/FLUTTER PROJECT/play store app/simon say/simon_say_game/android/app/.cxx/RelWithDebInfo/6gy6e325/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/FLUTTER PROJECT/play store app/simon say/simon_say_game/android/app/.cxx/RelWithDebInfo/6gy6e325/armeabi-v7a/CMakeFiles/rebuild_cache.dir
