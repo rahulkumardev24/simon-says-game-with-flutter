@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simon_say_game/helper/colors.dart';
 import 'package:simon_say_game/helper/my_dialogs.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 
@@ -198,7 +198,6 @@ class _SimonSaysGameState extends State<HomeScreen> {
     });
   }
 
-
   MediaQueryData? mqData;
   @override
   Widget build(BuildContext context) {
@@ -215,7 +214,11 @@ class _SimonSaysGameState extends State<HomeScreen> {
         ),
         backgroundColor: themeProvider.isDark
             ? const Color(0xff161A1D)
-            : const Color(0xff5E4DB2),
+            : AppColors.lightPrimary,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(16),
+                bottomLeft: Radius.circular(16))),
         actions: [
           /// Volume
           InkWell(
@@ -226,20 +229,24 @@ class _SimonSaysGameState extends State<HomeScreen> {
                 saveMute();
               },
               child: isMute
-                  ? const Icon(
+                  ? Icon(
                       Icons.volume_up_outlined,
-                      size: 30,
-                      color: Colors.white70,
+                      size: mqData!.size.width * 0.07,
+                      color: themeProvider.isDark
+                          ? AppColors.darkPrimary
+                          : AppColors.lightTextSecondary,
                     )
-                  : const Icon(
+                  : Icon(
                       Icons.volume_off_rounded,
-                      size: 30,
-                      color: Colors.white70,
+                      size: mqData!.size.width * 0.07,
+                      color: themeProvider.isDark
+                          ? AppColors.darkPrimary
+                          : AppColors.lightTextSecondary,
                     )),
 
           /// light and dark them
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.only(left: 8.0),
             child: Consumer<ThemeProvider>(
               builder: (context, themeProvider, child) {
                 return InkWell(
@@ -250,10 +257,10 @@ class _SimonSaysGameState extends State<HomeScreen> {
                     themeProvider.isDark
                         ? Icons.dark_mode_rounded
                         : Icons.light_mode_rounded,
-                    size: 30, // Adjust the size if needed
+                    size: mqData!.size.width * 0.07,
                     color: themeProvider.isDark
-                        ? const Color(0xff5E4DB2)
-                        : Colors.orange,
+                        ? AppColors.darkPrimary
+                        : AppColors.lightTextSecondary,
                   ),
                 );
               },
@@ -261,24 +268,22 @@ class _SimonSaysGameState extends State<HomeScreen> {
           ),
 
           /// Share button
-          // Usage in IconButton:
           IconButton(
             onPressed: () => MyDialogs.shareApp(context),
             icon: Icon(
               Icons.share,
-              size: mqData!.size.width * 0.08,
-              color: Colors.white,
+              size: mqData!.size.width * 0.06,
+              color: themeProvider.isDark
+                  ? AppColors.darkPrimary
+                  : AppColors.lightTextSecondary,
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(onPressed: (){
-        MyDialogs.shareApp(context);
-      }),
       backgroundColor: themeProvider.isDark
-          ? const Color(0xff161A1D)
-          : const Color(0xffe4d9ff),
-      // backgroundColor: gameOver ? Colors.red : Colors.white,
+          ? AppColors.darkBackground
+          : AppColors.lightBackground,
+
       /// ---- body ---- ///
       body: Center(
         child: Column(
@@ -370,7 +375,8 @@ class _SimonSaysGameState extends State<HomeScreen> {
                       },
                 style: ElevatedButton.styleFrom(
                     backgroundColor:
-                        started ? Colors.grey : const Color(0xff5E4DB2),
+                        started ? Colors.grey : AppColors.lightPrimary,
+                    elevation: 0,
                     shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadiusDirectional.only(
                             topEnd: Radius.circular(20),
@@ -380,7 +386,8 @@ class _SimonSaysGameState extends State<HomeScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 6)),
                 child: Text(
                   gameOver ? "Restart" : "Start Game",
-                  style: myTextStyle24(context, fontColor: Colors.white70),
+                  style: myTextStyle24(context,
+                      fontColor: AppColors.darkTextPrimary),
                 ),
               ),
             ),
@@ -395,11 +402,9 @@ class _SimonSaysGameState extends State<HomeScreen> {
   Widget buildButton(String color) {
     Color btnColor;
     BorderRadiusGeometry borderRadius;
-
     switch (color) {
       case "red":
         btnColor = Colors.red;
-
         borderRadius = const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(10),
