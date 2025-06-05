@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:simon_say_game/helper/colors.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
-
 import '../provider/them_provider.dart';
 
 class MyDialogs {
@@ -36,7 +35,7 @@ class MyDialogs {
         /// Show impressive thank you animation
         await showDialog(
           context: context,
-          barrierColor: Colors.black.withOpacity(0.7),
+          barrierColor: Colors.black26,
           builder: (context) => Center(
             child: Material(
               color: Colors.transparent,
@@ -44,7 +43,9 @@ class MyDialogs {
                 width: mqData.width * 0.85,
                 height: mqData.height * 0.5,
                 decoration: BoxDecoration(
-                  color: themeProvider.isDark ? AppColors.darkSurface : AppColors.lightPrimaryLight,
+                  color: themeProvider.isDark
+                      ? AppColors.darkSurface
+                      : AppColors.lightPrimaryLight,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
@@ -74,6 +75,7 @@ class MyDialogs {
                     ),
                     const SizedBox(height: 12),
                     Spacer(),
+
                     /// --- Elevated button --- ///
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(

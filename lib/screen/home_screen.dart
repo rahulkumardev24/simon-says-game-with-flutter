@@ -290,50 +290,92 @@ class _SimonSaysGameState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-              child: Row(
+            /// score card
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(
+                      width: 1, color: AppColors.secondary.withAlpha(110)),
+                  left: BorderSide(
+                      width: 1, color: AppColors.secondary.withAlpha(110)),
+                  right: BorderSide(
+                      width: 1, color: AppColors.secondary.withAlpha(110)),
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Score: $score", // Show the updated score
-                    style: myTextStyle24(context),
-                  ),
-                  Text(
-                    "Max Score: $maxScore",
-                    style: myTextStyle24(context),
-                  ),
-                ],
-              ),
-            ),
-            gameOver
-                ? Text(
-                    "Game over plz Restart",
-                    style: myTextStyle24(context,
-                        fontColor: Colors.red, fontFamily: "secondary"),
-                  )
-                : Container(
-                    width: mqData!.size.width * 0.9,
-                    height: mqData!.size.height * 0.05,
-                    decoration: const BoxDecoration(
-                        borderRadius: BorderRadiusDirectional.only(
-                            topEnd: Radius.circular(2),
-                            topStart: Radius.circular(2),
-                            bottomEnd: Radius.circular(20),
-                            bottomStart: Radius.circular(20)),
-                        color: Color(0xffB8ACF6)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        /// --------- level----------------------///
-                        Text(
-                          "Leve $level",
-                          style: myTextStyle24(context),
+                        // Current Score with icon
+                        _buildScoreCard(
+                          context,
+                          icon: Icons.star,
+                          title: "Score",
+                          value: score,
+                          color: AppColors.darkPrimaryDark,
+                        ),
+
+                        // Max Score with icon
+                        _buildScoreCard(
+                          context,
+                          icon: Icons.leaderboard,
+                          title: "Max Score",
+                          value: maxScore,
+                          color: Colors.amber[700]!,
                         ),
                       ],
                     ),
                   ),
+                  Container(
+                    height: mqData!.size.height * 0.05,
+                    decoration: BoxDecoration(
+                      color:
+                          gameOver ? AppColors.lightError : AppColors.secondary,
+                      borderRadius: BorderRadius.vertical(
+                        bottom: Radius.circular(20),
+                      ),
+                    ),
+                    child: Center(
+                      /// game ove then show this part
+                      child: gameOver
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.warning_amber,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Game Over! Tap to Restart",
+                                  style: myTextStyle18(
+                                    context,
+                                    fontColor: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              "Level $level",
+                              style: myTextStyle24(
+                                context,
+                                fontColor: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
             SizedBox(
               height: mqData!.size.height * 0.03,
@@ -342,53 +384,66 @@ class _SimonSaysGameState extends State<HomeScreen> {
             ///---------------BOX------------------///
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                ),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: colors.length,
-                itemBuilder: (context, index) {
-                  return buildButton(colors[index]);
-                },
-              ),
-            ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  /// grid view
+                  GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 6,
+                      mainAxisSpacing: 6,
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: colors.length,
+                    itemBuilder: (context, index) {
+                      return buildButton(colors[index]);
+                    },
+                  ),
 
-            SizedBox(
-              height: mqData!.size.height * 0.03,
-            ),
-
-            /// -------------------- Game Start ----------------------------///
-            SizedBox(
-              width: mqData!.size.width * 0.9,
-              child: ElevatedButton(
-                onPressed: started
-                    ? null
-                    : () {
-                        startGame();
-                        if (isMute) {
-                          audioPlayer.play(AssetSource('audio/start.mp3'));
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        started ? Colors.grey : AppColors.lightPrimary,
-                    elevation: 0,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadiusDirectional.only(
-                            topEnd: Radius.circular(20),
-                            topStart: Radius.circular(20),
-                            bottomEnd: Radius.circular(2),
-                            bottomStart: Radius.circular(2))),
-                    padding: const EdgeInsets.symmetric(vertical: 6)),
-                child: Text(
-                  gameOver ? "Restart" : "Start Game",
-                  style: myTextStyle24(context,
-                      fontColor: AppColors.darkTextPrimary),
-                ),
+                  /// start button
+                  GestureDetector(
+                    onTap: started
+                        ? null
+                        : () {
+                            startGame();
+                            if (isMute) {
+                              audioPlayer.play(AssetSource('audio/start.mp3'));
+                            }
+                          },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.lightPrimary.withAlpha(120),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          height: mqData!.size.height * 0.15,
+                          width: mqData!.size.height * 0.15,
+                          decoration: BoxDecoration(
+                            color: started
+                                ? Colors.grey[500]
+                                : AppColors.darkPrimary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              gameOver ? "Restart " : "START",
+                              style: myTextStyle24(context,
+                                  fontColor:
+                                      started ? Colors.black45 : Colors.black,
+                                  fontWeight: FontWeight.w900),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -407,36 +462,32 @@ class _SimonSaysGameState extends State<HomeScreen> {
         btnColor = Colors.red;
         borderRadius = const BorderRadius.only(
           topLeft: Radius.circular(20),
-          topRight: Radius.circular(10),
-          bottomLeft: Radius.circular(100),
+          bottomLeft: Radius.circular(80),
           bottomRight: Radius.circular(20),
         );
         break;
       case "yellow":
         btnColor = Colors.yellow;
         borderRadius = const BorderRadius.only(
-          topLeft: Radius.circular(10),
           topRight: Radius.circular(20),
           bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(100),
+          bottomRight: Radius.circular(80),
         );
         break;
       case "green":
         btnColor = Colors.greenAccent;
         borderRadius = const BorderRadius.only(
           topLeft: Radius.circular(20),
-          topRight: Radius.circular(100),
-          bottomLeft: Radius.circular(10),
+          topRight: Radius.circular(80),
           bottomRight: Radius.circular(20),
         );
         break;
       case "blue":
         btnColor = Colors.blueAccent;
         borderRadius = const BorderRadius.only(
-          topLeft: Radius.circular(100),
+          topLeft: Radius.circular(80),
           topRight: Radius.circular(20),
           bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(10),
         );
         break;
       default:
@@ -464,6 +515,33 @@ class _SimonSaysGameState extends State<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  // Helper widget for score cards
+  Widget _buildScoreCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required int value,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 28),
+        SizedBox(height: 4),
+        Text(
+          title,
+          style: myTextStyle18(context,
+              fontColor: Colors.grey[600], fontWeight: FontWeight.w900),
+        ),
+        SizedBox(height: 4),
+        Text(
+          "$value",
+          style: myTextStyle24(context,
+              fontColor: color, fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 }
