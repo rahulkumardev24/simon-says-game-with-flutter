@@ -18,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 class _SimonSaysGameState extends State<HomeScreen> {
   final String playStoreLink =
       "https://play.google.com/store/apps/details?id=com.appcreatorrahul.simonsay";
-
   List<String> gameSeq = [];
   List<String> userSeq = [];
   List<String> colors = ["blue", "green", "red", "yellow"];
