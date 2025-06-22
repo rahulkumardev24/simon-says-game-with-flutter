@@ -178,14 +178,14 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
   void loadMaxScore() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      maxScore = prefs.getInt('maxScore') ?? 0;
+      maxScore = prefs.getInt('sixBoxMaxScore') ?? 0;
     });
   }
 
   /// Save max score to SharedPreferences
   void saveMaxScore() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('maxScore', maxScore);
+    await prefs.setInt('sixBoxMaxScore', maxScore);
   }
 
   /// -------------- Mute and unMute functions ------------------- ///

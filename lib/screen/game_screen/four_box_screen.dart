@@ -9,6 +9,7 @@ import 'package:simon_say_game/helper/my_dialogs.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 
 import '../../provider/them_provider.dart';
+import '../../widgets/score_board_card.dart';
 
 class FourBoxScreen extends StatefulWidget {
   @override
@@ -290,90 +291,11 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             /// score card
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(
-                      width: 1, color: AppColors.secondary.withAlpha(110)),
-                  left: BorderSide(
-                      width: 1, color: AppColors.secondary.withAlpha(110)),
-                  right: BorderSide(
-                      width: 1, color: AppColors.secondary.withAlpha(110)),
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        // Current Score with icon
-                        _buildScoreCard(
-                          context,
-                          icon: Icons.star,
-                          title: "Score",
-                          value: score,
-                          color: AppColors.darkPrimaryDark,
-                        ),
-
-                        // Max Score with icon
-                        _buildScoreCard(
-                          context,
-                          icon: Icons.leaderboard,
-                          title: "Max Score",
-                          value: maxScore,
-                          color: Colors.amber[700]!,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: mqData!.size.height * 0.05,
-                    decoration: BoxDecoration(
-                      color:
-                          gameOver ? AppColors.lightError : AppColors.secondary,
-                      borderRadius: BorderRadius.vertical(
-                        bottom: Radius.circular(20),
-                      ),
-                    ),
-                    child: Center(
-                      /// game ove then show this part
-                      child: gameOver
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.warning_amber,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Game Over! Tap to Restart",
-                                  style: myTextStyle18(
-                                    context,
-                                    fontColor: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Text(
-                              "Level $level",
-                              style: myTextStyle24(
-                                context,
-                                fontColor: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
-              ),
+            ScoreBoardCard(
+              scoreValue: score,
+              maxScore: maxScore,
+              isGameOver: gameOver,
+              level: level,
             ),
 
             SizedBox(

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:simon_say_game/helper/colors.dart';
+import 'package:simon_say_game/screen/game_screen/eight_box_screen.dart';
 import 'package:simon_say_game/screen/game_screen/four_box_screen.dart';
+import 'package:simon_say_game/screen/game_screen/six_box_screen.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 import 'package:simon_say_game/provider/them_provider.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -68,6 +70,8 @@ class _BoxSelectionScreenState extends State<GameSelectionScreen>
       ),
       backgroundColor:
           isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+
+      /// body
       body: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
@@ -94,6 +98,8 @@ class _BoxSelectionScreenState extends State<GameSelectionScreen>
       ),
     );
   }
+
+  /// ----------------------  widgets ------------------------------------- ///
 
   Widget _appBar(ThemeProvider themeProvider, Size size) {
     return VxArc(
@@ -154,7 +160,7 @@ class _BoxSelectionScreenState extends State<GameSelectionScreen>
           ],
           child: GestureDetector(
             onTap: () {
-              // Navigate directly if 4 boxes selected
+              /// Navigate according to selection
               if (count == 4) {
                 Navigator.push(
                   context,
@@ -171,6 +177,40 @@ class _BoxSelectionScreenState extends State<GameSelectionScreen>
                     transitionDuration: Duration(milliseconds: 300),
                   ),
                 );
+              } else if (count == 6) {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        SixBoxScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                    transitionDuration: Duration(milliseconds: 300),
+                  ),
+                );
+              }else if(count == 8){
+
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        EightBoxScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                    transitionDuration: Duration(milliseconds: 300),
+                  ),
+                );
+
               }
             },
             child: Container(
@@ -238,13 +278,6 @@ class _BoxSelectionScreenState extends State<GameSelectionScreen>
             decoration: BoxDecoration(
               color: _getColorForString(boxColors[boxCount]![index]),
               borderRadius: BorderRadius.circular(5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 3,
-                  spreadRadius: 1,
-                ),
-              ],
             ),
           ),
         );
