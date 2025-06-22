@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:simon_say_game/helper/colors.dart';
+import 'package:simon_say_game/screen/game_screen/four_box_screen.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 import 'package:simon_say_game/provider/them_provider.dart';
 import 'package:velocity_x/velocity_x.dart';
 
-import 'home_screen.dart';
-
-class BoxSelectionScreen extends StatefulWidget {
+class GameSelectionScreen extends StatefulWidget {
   @override
   _BoxSelectionScreenState createState() => _BoxSelectionScreenState();
 }
 
-class _BoxSelectionScreenState extends State<BoxSelectionScreen>
+class _BoxSelectionScreenState extends State<GameSelectionScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -61,6 +60,7 @@ class _BoxSelectionScreenState extends State<BoxSelectionScreen>
     final isDarkMode = themeProvider.isDark;
 
     return Scaffold(
+      /// app bar
       appBar: AppBar(
         toolbarHeight: size.height * 0.2,
         flexibleSpace: _appBar(themeProvider, size),
@@ -160,7 +160,7 @@ class _BoxSelectionScreenState extends State<BoxSelectionScreen>
                   context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
-                        HomeScreen(),
+                        FourBoxScreen(),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                       return FadeTransition(

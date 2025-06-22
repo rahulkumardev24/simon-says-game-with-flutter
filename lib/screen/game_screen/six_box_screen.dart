@@ -8,22 +8,24 @@ import 'package:simon_say_game/helper/colors.dart';
 import 'package:simon_say_game/helper/my_dialogs.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 
-import '../provider/them_provider.dart';
+import '../../provider/them_provider.dart';
+import '../../widgets/score_board_card.dart';
 
-class HomeScreen extends StatefulWidget {
+class SixBoxScreen extends StatefulWidget {
   @override
   _SimonSaysGameState createState() => _SimonSaysGameState();
 }
 
-class _SimonSaysGameState extends State<HomeScreen> {
+class _SimonSaysGameState extends State<SixBoxScreen> {
   final String playStoreLink =
       "https://play.google.com/store/apps/details?id=com.appcreatorrahul.simonsay";
   List<String> gameSeq = [];
   List<String> userSeq = [];
-  List<String> colors = ["blue", "green", "red", "yellow"];
+  List<String> colors = ["blue", "green", "red", "yellow", "orange", "cyan"];
   bool started = false;
   int level = 0;
   bool userTurn = false;
+
   bool gameOver = false;
   int score = 0;
   int maxScore = 0;
@@ -35,7 +37,9 @@ class _SimonSaysGameState extends State<HomeScreen> {
     "red": false,
     "yellow": false,
     "green": false,
-    "blue": false
+    "blue": false,
+    "orange": false,
+    "cyan": false
   };
 
   /// audio play
@@ -290,90 +294,11 @@ class _SimonSaysGameState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             /// score card
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(
-                      width: 1, color: AppColors.secondary.withAlpha(110)),
-                  left: BorderSide(
-                      width: 1, color: AppColors.secondary.withAlpha(110)),
-                  right: BorderSide(
-                      width: 1, color: AppColors.secondary.withAlpha(110)),
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        // Current Score with icon
-                        _buildScoreCard(
-                          context,
-                          icon: Icons.star,
-                          title: "Score",
-                          value: score,
-                          color: AppColors.darkPrimaryDark,
-                        ),
-
-                        // Max Score with icon
-                        _buildScoreCard(
-                          context,
-                          icon: Icons.leaderboard,
-                          title: "Max Score",
-                          value: maxScore,
-                          color: Colors.amber[700]!,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: mqData!.size.height * 0.05,
-                    decoration: BoxDecoration(
-                      color:
-                          gameOver ? AppColors.lightError : AppColors.secondary,
-                      borderRadius: BorderRadius.vertical(
-                        bottom: Radius.circular(20),
-                      ),
-                    ),
-                    child: Center(
-                      /// game ove then show this part
-                      child: gameOver
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.warning_amber,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Game Over! Tap to Restart",
-                                  style: myTextStyle18(
-                                    context,
-                                    fontColor: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Text(
-                              "Level $level",
-                              style: myTextStyle24(
-                                context,
-                                fontColor: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
-              ),
+            ScoreBoardCard(
+              scoreValue: score,
+              maxScore: maxScore,
+              isGameOver: gameOver,
+              level: level,
             ),
 
             SizedBox(
@@ -383,16 +308,16 @@ class _SimonSaysGameState extends State<HomeScreen> {
             ///---------------BOX------------------///
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Stack(
-                alignment: Alignment.center,
+              child: Column(
                 children: [
                   /// grid view
                   GridView.builder(
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      crossAxisSpacing: 6,
-                      mainAxisSpacing: 6,
+                      crossAxisSpacing: 8,
+                      childAspectRatio: 3 / 2,
+                      mainAxisSpacing: 8,
                     ),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -400,6 +325,10 @@ class _SimonSaysGameState extends State<HomeScreen> {
                     itemBuilder: (context, index) {
                       return buildButton(colors[index]);
                     },
+                  ),
+
+                  SizedBox(
+                    height: mqData!.size.height * 0.05,
                   ),
 
                   /// start button
@@ -412,22 +341,26 @@ class _SimonSaysGameState extends State<HomeScreen> {
                               audioPlayer.play(AssetSource('audio/start.mp3'));
                             }
                           },
+
+                    /// outer container
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppColors.lightPrimary.withAlpha(120),
-                        shape: BoxShape.circle,
-                      ),
+                          color: started
+                              ? Colors.grey[300]
+                              : AppColors.lightPrimary.withAlpha(120),
+                          borderRadius: BorderRadius.circular(8)),
+
+                      /// inside container
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
-                          height: mqData!.size.height * 0.15,
-                          width: mqData!.size.height * 0.15,
+                          width: mqData!.size.width,
+                          height: mqData!.size.height * 0.05,
                           decoration: BoxDecoration(
-                            color: started
-                                ? Colors.grey[500]
-                                : AppColors.darkPrimary,
-                            shape: BoxShape.circle,
-                          ),
+                              color: started
+                                  ? Colors.grey[500]
+                                  : AppColors.darkPrimary,
+                              borderRadius: BorderRadius.circular(8)),
                           child: Center(
                             child: Text(
                               gameOver ? "Restart " : "START",
@@ -460,35 +393,55 @@ class _SimonSaysGameState extends State<HomeScreen> {
       case "red":
         btnColor = Colors.red;
         borderRadius = const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          bottomLeft: Radius.circular(80),
-          bottomRight: Radius.circular(20),
-        );
+            topLeft: Radius.circular(80),
+            bottomLeft: Radius.circular(80),
+            bottomRight: Radius.circular(80),
+            topRight: Radius.circular(80));
         break;
       case "yellow":
         btnColor = Colors.yellow;
         borderRadius = const BorderRadius.only(
-          topRight: Radius.circular(20),
-          bottomLeft: Radius.circular(20),
+          topRight: Radius.circular(80),
+          bottomLeft: Radius.circular(80),
           bottomRight: Radius.circular(80),
+          topLeft: Radius.circular(80),
         );
         break;
       case "green":
         btnColor = Colors.greenAccent;
         borderRadius = const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(80),
-          bottomRight: Radius.circular(20),
-        );
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(80),
+            bottomLeft: Radius.circular(80),
+            bottomRight: Radius.circular(20));
         break;
       case "blue":
         btnColor = Colors.blueAccent;
         borderRadius = const BorderRadius.only(
-          topLeft: Radius.circular(80),
-          topRight: Radius.circular(20),
-          bottomLeft: Radius.circular(20),
-        );
+            topLeft: Radius.circular(80),
+            topRight: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(80));
         break;
+
+      case "orange":
+        btnColor = Colors.orangeAccent;
+        borderRadius = const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(80),
+            bottomLeft: Radius.circular(80),
+            bottomRight: Radius.circular(20));
+        break;
+
+      case "cyan":
+        btnColor = Colors.cyanAccent;
+        borderRadius = const BorderRadius.only(
+            topLeft: Radius.circular(80),
+            topRight: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(80));
+        break;
+
       default:
         btnColor = Colors.white;
         borderRadius = BorderRadius.circular(10);
@@ -499,9 +452,7 @@ class _SimonSaysGameState extends State<HomeScreen> {
         if (started && !gameOver && userTurn) userPress(color);
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        height: 100,
-        width: 100,
+        duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: flashMap[color]! ? Colors.white : btnColor,
           borderRadius: borderRadius,
@@ -514,33 +465,6 @@ class _SimonSaysGameState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  // Helper widget for score cards
-  Widget _buildScoreCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required int value,
-    required Color color,
-  }) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 28),
-        SizedBox(height: 4),
-        Text(
-          title,
-          style: myTextStyle18(context,
-              fontColor: Colors.grey[600], fontWeight: FontWeight.w900),
-        ),
-        SizedBox(height: 4),
-        Text(
-          "$value",
-          style: myTextStyle24(context,
-              fontColor: color, fontWeight: FontWeight.bold),
-        ),
-      ],
     );
   }
 }

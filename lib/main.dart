@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:simon_say_game/provider/them_provider.dart';
-import 'package:simon_say_game/screen/box_selection_screen.dart';
-import 'package:simon_say_game/screen/home_screen.dart';
-import 'package:simon_say_game/screen/splash_screen.dart';
+import 'package:simon_say_game/screen/game_screen/six_box_screen.dart';
+import 'package:simon_say_game/screen/game_selection_screen.dart';
 
 void main() {
 
@@ -41,7 +40,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
       ), // Dark theme background
 
-      home: BoxSelectionScreen()
+      home: GameSelectionScreen()
     );
   }
 }
