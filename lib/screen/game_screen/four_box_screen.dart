@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simon_say_game/helper/colors.dart';
@@ -320,44 +321,63 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: colors.length,
                     itemBuilder: (context, index) {
-                      return buildButton(colors[index]);
+                      return Animate(
+                        effects: [
+                          ScaleEffect(
+                            duration: 500.milliseconds,
+                            delay: (50 * index).ms,
+                            curve: Curves.easeInSine,
+                          ),
+                        ],
+
+                          child: buildButton(colors[index]));
                     },
                   ),
 
                   /// start button
-                  GestureDetector(
-                    onTap: started
-                        ? null
-                        : () {
-                            startGame();
-                            if (isMute) {
-                              audioPlayer.play(AssetSource('audio/start.mp3'));
-                            }
-                          },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.lightPrimary.withAlpha(120),
-                        shape: BoxShape.circle,
+                  Animate(
+                    effects: [
+                      ScaleEffect(
+                        duration: 500.milliseconds,
+                        delay: (50).ms,
+                        curve: Curves.easeInSine,
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          height: mqData!.size.height * 0.15,
-                          width: mqData!.size.height * 0.15,
-                          decoration: BoxDecoration(
-                            color: started
-                                ? Colors.grey[500]
-                                : AppColors.darkPrimary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              gameOver ? "Restart " : "START",
-                              style: myTextStyle24(context,
-                                  fontColor:
-                                      started ? Colors.black45 : Colors.black,
-                                  fontWeight: FontWeight.w900),
-                              textAlign: TextAlign.center,
+                    ],
+
+                    child: GestureDetector(
+                      onTap: started
+                          ? null
+                          : () {
+                              startGame();
+                              if (isMute) {
+                                audioPlayer.play(AssetSource('audio/start.mp3'));
+                              }
+                            },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.lightPrimary.withAlpha(120),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            height: mqData!.size.height * 0.15,
+                            width: mqData!.size.height * 0.15,
+                            decoration: BoxDecoration(
+                              color: started
+                                  ? Colors.grey[500]
+                                  : AppColors.darkPrimary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                gameOver ? "Restart " : "START",
+                                style: myTextStyle24(context,
+                                    fontColor:
+                                        started ? Colors.black45 : Colors.black,
+                                    fontWeight: FontWeight.w900),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         ),

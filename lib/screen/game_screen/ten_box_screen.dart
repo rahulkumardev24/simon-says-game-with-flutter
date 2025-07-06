@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simon_say_game/helper/colors.dart';
 import 'package:simon_say_game/helper/my_dialogs.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
-
 import '../../provider/them_provider.dart';
 import '../../widgets/score_board_card.dart';
 

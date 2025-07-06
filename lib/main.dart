@@ -6,7 +6,6 @@ import 'package:simon_say_game/screen/game_screen/six_box_screen.dart';
 import 'package:simon_say_game/screen/game_selection_screen.dart';
 
 void main() {
-
   /// use for stop device orientation
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
@@ -21,7 +20,6 @@ void main() {
   );
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -31,17 +29,15 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
-      theme: ThemeData.light().copyWith(
-        scaffoldBackgroundColor: Colors.white,
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-      ), // Dark theme background
+        debugShowCheckedModeBanner: false,
+        themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+        theme: ThemeData.light().copyWith(
+          scaffoldBackgroundColor: Colors.white,
+        ),
+        darkTheme: ThemeData.dark().copyWith(
+          scaffoldBackgroundColor: Colors.black,
+        ), // Dark theme background
 
-      home: GameSelectionScreen()
-    );
+        home: GameSelectionScreen());
   }
 }
-

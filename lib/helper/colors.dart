@@ -12,11 +12,10 @@ class AppColors {
   static const Color lightOnSurface = Color(0xff444444);
   static const Color lightError = Color(0xffd32f2f);
 
-
   // secondary
 
   static const Color secondary = Color(0xff27548A);
-
+  static const Color secondaryLight = Color(0xff3773bf);
 
   // Dark Theme Colors
   static const Color darkPrimary = Color(0xffF49BAB);
@@ -33,16 +32,14 @@ class AppColors {
   // Text Colors
   static const Color lightTextPrimary = Color(0xFF000000);
   static const Color lightTextSecondary = Color(0xFF424242);
-  static const Color lightTextDisabled = Color(0xFF9E9E9E);
 
   static const Color darkTextPrimary = Color(0xFFFFFFFF);
   static const Color darkTextSecondary = Color(0xFFE0E0E0);
-  static const Color darkTextDisabled = Color(0xFF9E9E9E);
 
-  // On Surface Text Colors (for text on colored backgrounds)
-  static const Color lightOnPrimaryText = Color(0xFFFFFFFF);
-  static const Color darkOnPrimaryText = Color(0xFF000000);
+  // Icon Colors
+  static const Color lightIconPrimary = Color(0xFF000000);
+  static const Color lightIconSecondary = Color(0xFF424242);
 
-
-
+  static const Color darkIconPrimary = Color(0xFFFFFFFF);
+  static const Color darkIconSecondary = Color(0xFFE0E0E0);
 }

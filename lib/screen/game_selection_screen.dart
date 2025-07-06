@@ -1,6 +1,10 @@
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simon_say_game/helper/colors.dart';
 import 'package:simon_say_game/screen/game_screen/eight_box_screen.dart';
 import 'package:simon_say_game/screen/game_screen/four_box_screen.dart';
@@ -8,7 +12,10 @@ import 'package:simon_say_game/screen/game_screen/six_box_screen.dart';
 import 'package:simon_say_game/screen/game_screen/ten_box_screen.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 import 'package:simon_say_game/provider/them_provider.dart';
+import 'package:simon_say_game/widgets/my_icon_button.dart';
 import 'package:velocity_x/velocity_x.dart';
+
+import '../helper/my_dialogs.dart';
 
 class GameSelectionScreen extends StatefulWidget {
   @override
@@ -39,6 +46,25 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
       "cyan"
     ],
   };
+
+  bool isMute = true;
+  bool isLight = true;
+
+  /// audio play
+  final AudioPlayer audioPlayer = AudioPlayer();
+
+  /// -------------- Mute and unMute functions ------------------- ///
+  void saveMute() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setBool("checkMute", isMute);
+  }
+
+  void loadMute() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      isMute = preferences.getBool("checkMute") ?? true;
+    });
+  }
 
   @override
   void initState() {
@@ -82,7 +108,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
         elevation: 0,
       ),
       backgroundColor:
-      isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+          isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       body: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
@@ -123,6 +149,58 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                /// volume button
+                MyIconButton(
+                    icon: isMute
+                        ? FontAwesomeIcons.volumeHigh
+                        : FontAwesomeIcons.volumeXmark,
+                    onTap: () {
+                      setState(() {
+                        isMute = !isMute;
+                      });
+                      saveMute();
+                    }),
+                MyIconButton(
+                    icon: isMute
+                        ? FontAwesomeIcons.volumeHigh
+                        : FontAwesomeIcons.volumeXmark,
+                    onTap: () {
+                      setState(() {
+                        isMute = !isMute;
+                      });
+                      saveMute();
+                    }),
+
+                SizedBox(
+                  width: 12,
+                ),
+
+                /// light and dark them
+                Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, child) {
+                    return MyIconButton(
+                        icon: themeProvider.isDark
+                            ? Icons.dark_mode_rounded
+                            : Icons.light_mode_rounded,
+                        onTap: () {
+                          themeProvider.toggleTheme();
+                        });
+                  },
+                ),
+                SizedBox(
+                  width: 12,
+                ),
+                MyIconButton(
+                    icon: FontAwesomeIcons.shareNodes,
+                    iconColor: themeProvider.isDark
+                        ? AppColors.darkPrimary
+                        : AppColors.lightTextSecondary,
+                    onTap: () => MyDialogs.shareApp(context)),
+              ],
+            ),
             Text(
               "CHOOSE DIFFICULTY",
               style: myTextStyle24(
@@ -250,7 +328,11 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
   Widget _buildMiniGrid(int boxCount) {
     return GridView.count(
       physics: NeverScrollableScrollPhysics(),
-      crossAxisCount: boxCount <= 4 ? 2 : boxCount <= 6 ? 3 : 4,
+      crossAxisCount: boxCount <= 4
+          ? 2
+          : boxCount <= 6
+              ? 3
+              : 4,
       mainAxisSpacing: 3,
       crossAxisSpacing: 3,
       shrinkWrap: true,
@@ -265,16 +347,16 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
           ],
           child: Container(
             decoration: BoxDecoration(
-                color: _getColorForString(boxColors[boxCount]![index]),
-                borderRadius: BorderRadius.circular(5),
-                boxShadow: [
-            BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 2,
-            offset: Offset(1, 1)),
-            ],
+              color: _getColorForString(boxColors[boxCount]![index]),
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 2,
+                    offset: Offset(1, 1)),
+              ],
+            ),
           ),
-        ),
         );
       }),
     );
