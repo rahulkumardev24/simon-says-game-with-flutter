@@ -1,21 +1,20 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simon_say_game/helper/colors.dart';
 import 'package:simon_say_game/screen/game_screen/eight_box_screen.dart';
 import 'package:simon_say_game/screen/game_screen/four_box_screen.dart';
 import 'package:simon_say_game/screen/game_screen/six_box_screen.dart';
 import 'package:simon_say_game/screen/game_screen/ten_box_screen.dart';
+import 'package:simon_say_game/utils/app_utils.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 import 'package:simon_say_game/provider/them_provider.dart';
 import 'package:simon_say_game/widgets/my_icon_button.dart';
 import 'package:velocity_x/velocity_x.dart';
-
 import '../helper/my_dialogs.dart';
+import 'game_screen/game_rule_screen.dart';
 
 class GameSelectionScreen extends StatefulWidget {
   @override
@@ -49,22 +48,8 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
 
   bool isMute = true;
   bool isLight = true;
+  bool isVibrate = true;
 
-  /// audio play
-  final AudioPlayer audioPlayer = AudioPlayer();
-
-  /// -------------- Mute and unMute functions ------------------- ///
-  void saveMute() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setBool("checkMute", isMute);
-  }
-
-  void loadMute() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      isMute = preferences.getBool("checkMute") ?? true;
-    });
-  }
 
   @override
   void initState() {
@@ -86,12 +71,22 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
       ),
     );
     _controller.forward();
+
+    /// setting data get
+    _loadSettingData();
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _loadSettingData() async {
+    bool loadVibration = await AppUtils.loadVibration();
+    setState(() {
+      isVibrate = loadVibration;
+    });
   }
 
   @override
@@ -102,7 +97,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: size.height * 0.2,
+        toolbarHeight: size.height * 0.3,
         flexibleSpace: _buildAppBar(themeProvider, size),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -149,6 +144,8 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Spacer(flex: 1,),
+            /// Setting
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -161,22 +158,21 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                       setState(() {
                         isMute = !isMute;
                       });
-                      saveMute();
-                    }),
-                MyIconButton(
-                    icon: isMute
-                        ? FontAwesomeIcons.volumeHigh
-                        : FontAwesomeIcons.volumeXmark,
-                    onTap: () {
-                      setState(() {
-                        isMute = !isMute;
-                      });
-                      saveMute();
+                      AppUtils.saveMute(isMute);
                     }),
 
-                SizedBox(
-                  width: 12,
-                ),
+                /// vibration
+                MyIconButton(
+                    icon: Icons.vibration_rounded,
+                    iconColor: isVibrate ? Colors.blue : Colors.grey,
+                    onTap: () {
+                      setState(() {
+                        isVibrate = !isVibrate;
+                      });
+                      AppUtils.saveVibration(isVibrate);
+                    }),
+
+
 
                 /// light and dark them
                 Consumer<ThemeProvider>(
@@ -190,17 +186,36 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                         });
                   },
                 ),
-                SizedBox(
-                  width: 12,
-                ),
+
+                /// share
                 MyIconButton(
                     icon: FontAwesomeIcons.shareNodes,
                     iconColor: themeProvider.isDark
                         ? AppColors.darkPrimary
                         : AppColors.lightTextSecondary,
                     onTap: () => MyDialogs.shareApp(context)),
+
+                /// vibration
+                ElevatedButton.icon(
+                  icon: Icon(Icons.info_outline_rounded),
+                  label: Text("Game Rules"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: themeProvider.isDark
+                        ? AppColors.darkPrimary
+                        : AppColors.lightPrimary,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const GameRulesScreen()),
+                    );
+                  },
+                )
+
               ],
             ),
+
+           Spacer(),
             Text(
               "CHOOSE DIFFICULTY",
               style: myTextStyle24(
@@ -223,7 +238,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                     : AppColors.lightTextSecondary,
               ),
             ),
-            SizedBox(height: 15),
+            Spacer(flex: 1,),
           ],
         ),
       ),

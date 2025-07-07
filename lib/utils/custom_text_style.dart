@@ -31,6 +31,19 @@ TextStyle myTextStyle15(BuildContext context,
   );
 }
 
+/// font Size 16
+TextStyle myTextStyle16(BuildContext context,
+    {String fontFamily = "primary",
+      Color? fontColor,
+      FontWeight fontWeight = FontWeight.normal}) {
+  return TextStyle(
+    color: getTextColor(context, fontColor),
+    fontSize: 16,
+    fontFamily: fontFamily,
+    fontWeight: fontWeight,
+  );
+}
+
 /// font Size 18
 TextStyle myTextStyle18(BuildContext context,
     {String fontFamily = "primary",
@@ -39,6 +52,18 @@ TextStyle myTextStyle18(BuildContext context,
   return TextStyle(
     color: getTextColor(context, fontColor),
     fontSize: 18,
+    fontFamily: fontFamily,
+    fontWeight: fontWeight,
+  );
+}
+
+TextStyle myTextStyle20(BuildContext context,
+    {String fontFamily = "primary",
+      Color? fontColor,
+      FontWeight fontWeight = FontWeight.normal}) {
+  return TextStyle(
+    color: getTextColor(context, fontColor),
+    fontSize: 20,
     fontFamily: fontFamily,
     fontWeight: fontWeight,
   );

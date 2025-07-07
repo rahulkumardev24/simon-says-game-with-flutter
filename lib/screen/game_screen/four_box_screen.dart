@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simon_say_game/helper/colors.dart';
 import 'package:simon_say_game/helper/my_dialogs.dart';
+import 'package:simon_say_game/utils/app_utils.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
-
 import '../../provider/them_provider.dart';
 import '../../widgets/score_board_card.dart';
 
@@ -18,8 +16,6 @@ class FourBoxScreen extends StatefulWidget {
 }
 
 class _SimonSaysGameState extends State<FourBoxScreen> {
-  final String playStoreLink =
-      "https://play.google.com/store/apps/details?id=com.appcreatorrahul.simonsay";
   List<String> gameSeq = [];
   List<String> userSeq = [];
   List<String> colors = ["blue", "green", "red", "yellow"];
@@ -28,10 +24,10 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
   bool userTurn = false;
   bool gameOver = false;
   int score = 0;
-  int maxScore = 0;
-
+  int _maxScore = 0;
   bool isMute = true;
   bool isLight = true;
+  bool isVibrate = true;
 
   Map<String, bool> flashMap = {
     "red": false,
@@ -40,14 +36,21 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
     "blue": false
   };
 
-  /// audio play
-  final AudioPlayer audioPlayer = AudioPlayer();
-
   @override
   void initState() {
     super.initState();
-    loadMaxScore();
-    loadMute();
+    initData();
+  }
+
+  void initData() async {
+    int loadedScore = await AppUtils.loadMaxScore();
+    bool loadMute = await AppUtils.loadMute();
+    bool loadVibrate = await AppUtils.loadVibration();
+    setState(() {
+      _maxScore = loadedScore;
+      isMute = loadMute;
+      isVibrate = loadVibrate;
+    });
   }
 
   /// -----Game Start function-----------///
@@ -86,12 +89,12 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
     }
 
     /// Check and update the maxScore if needed
-    if (score > maxScore) {
-      maxScore = score;
+    if (score > _maxScore) {
+      _maxScore = score;
     }
 
-    /// call the function to save the max score into shared preference
-    saveMaxScore();
+    /// call save max score
+    AppUtils.saveMaxScore(_maxScore);
 
     /// random index generate
     int randIdx = Random().nextInt(colors.length);
@@ -105,25 +108,41 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
   /// flashSequence function
   Future<void> flashSequence() async {
     for (String color in gameSeq) {
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // Play sound for computer flash
+      AppUtils.playSound(fileName: "audio/tap.mp3", isMute: isMute);
+
+      // Vibrate for computer flash
+      AppUtils.playVibration(isVibrate: isVibrate, durationMs: 100);
+
+      // Flash the box
       setState(() {
         flashMap[color] = true;
       });
+
       await Future.delayed(const Duration(milliseconds: 500));
       setState(() {
         flashMap[color] = false;
       });
     }
+
+    // Allow user to start playing
     setState(() {
       userTurn = true;
     });
   }
 
   /// user press functions
-  void userPress(String color) {
-    if (!userTurn) return;
+  bool isProcessingTap = false;
 
-    if (isMute) audioPlayer.play(AssetSource('audio/tap.mp3'));
+  void userPress(String color) {
+    if (!userTurn || isProcessingTap) return;
+
+    isProcessingTap = true;
+
+    AppUtils.playSound(fileName: "audio/tap.mp3", isMute: isMute);
+    AppUtils.playVibration(isVibrate: isVibrate);
 
     setState(() {
       userSeq.add(color);
@@ -136,6 +155,7 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
       });
 
       checkAnswer(userSeq.length - 1);
+      isProcessingTap = false;
     });
   }
 
@@ -145,7 +165,6 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
       gameOverSequence();
       return;
     }
-
     if (userSeq.length == gameSeq.length) {
       setState(() {
         userTurn = false;
@@ -156,7 +175,8 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
 
   /// game over functions
   void gameOverSequence() {
-    if (isMute) audioPlayer.play(AssetSource("audio/over.mp3"));
+    AppUtils.playSound(fileName: "audio/over.mp3", isMute: isMute);
+    AppUtils.playVibration(isVibrate: isVibrate, durationMs: 400);
     setState(() {
       gameOver = true;
       started = false;
@@ -167,35 +187,6 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
         gameSeq.clear();
         userSeq.clear();
       });
-    });
-  }
-
-  ///------------------ SHARED PREFERENCES--------------------------///
-
-  /// Load max score from SharedPreferences
-  void loadMaxScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      maxScore = prefs.getInt('maxScore') ?? 0;
-    });
-  }
-
-  /// Save max score to SharedPreferences
-  void saveMaxScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('maxScore', maxScore);
-  }
-
-  /// -------------- Mute and unMute functions ------------------- ///
-  void saveMute() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setBool("checkMute", isMute);
-  }
-
-  void loadMute() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      isMute = preferences.getBool("checkMute") ?? true;
     });
   }
 
@@ -227,7 +218,7 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
                 setState(() {
                   isMute = !isMute;
                 });
-                saveMute();
+                AppUtils.saveMute(isMute);
               },
               child: isMute
                   ? Icon(
@@ -294,7 +285,7 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
             /// score card
             ScoreBoardCard(
               scoreValue: score,
-              maxScore: maxScore,
+              maxScore: _maxScore,
               isGameOver: gameOver,
               level: level,
             ),
@@ -321,16 +312,13 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: colors.length,
                     itemBuilder: (context, index) {
-                      return Animate(
-                        effects: [
-                          ScaleEffect(
-                            duration: 500.milliseconds,
-                            delay: (50 * index).ms,
-                            curve: Curves.easeInSine,
-                          ),
-                        ],
-
-                          child: buildButton(colors[index]));
+                      return Animate(effects: [
+                        ScaleEffect(
+                          duration: 500.milliseconds,
+                          delay: (50 * index).ms,
+                          curve: Curves.easeInSine,
+                        ),
+                      ], child: buildButton(colors[index]));
                     },
                   ),
 
@@ -343,15 +331,21 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
                         curve: Curves.easeInSine,
                       ),
                     ],
-
                     child: GestureDetector(
                       onTap: started
                           ? null
-                          : () {
+                          : () async {
+                              AppUtils.playSound(
+                                fileName: "audio/start.mp3",
+                                isMute: isMute,
+                              );
+                              AppUtils.playVibration(
+                                isVibrate: isVibrate,
+                                durationMs: 400,
+                              );
+
+                              await Future.delayed(Duration(milliseconds: 800));
                               startGame();
-                              if (isMute) {
-                                audioPlayer.play(AssetSource('audio/start.mp3'));
-                              }
                             },
                       child: Container(
                         decoration: BoxDecoration(
@@ -456,33 +450,6 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  // Helper widget for score cards
-  Widget _buildScoreCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required int value,
-    required Color color,
-  }) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 28),
-        SizedBox(height: 4),
-        Text(
-          title,
-          style: myTextStyle18(context,
-              fontColor: Colors.grey[600], fontWeight: FontWeight.w900),
-        ),
-        SizedBox(height: 4),
-        Text(
-          "$value",
-          style: myTextStyle24(context,
-              fontColor: color, fontWeight: FontWeight.bold),
-        ),
-      ],
     );
   }
 }

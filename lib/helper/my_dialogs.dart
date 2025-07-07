@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:simon_say_game/helper/app_constant.dart';
 import 'package:simon_say_game/helper/colors.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 import '../provider/them_provider.dart';
@@ -23,12 +24,10 @@ class MyDialogs {
   static Future<void> shareApp(BuildContext context) async {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final mqData = MediaQuery.of(context).size;
-    const playStoreLink =
-        "https://play.google.com/store/apps/details?id=com.appcreatorrahul.simonsay";
     try {
       final result = await SharePlus.instance.share(ShareParams(
         text:
-            'Boost your memory & reflexes with this lightning-fast Simon Says game! Download now :\n$playStoreLink',
+            'Boost your memory & reflexes with this lightning-fast Simon Says game! Download now :\n${AppConstant.playStoreLink}',
         subject: 'Simon Says',
       ));
       if (result.status == ShareResultStatus.success) {

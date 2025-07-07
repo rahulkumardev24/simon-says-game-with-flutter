@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simon_say_game/helper/colors.dart';
 import 'package:simon_say_game/helper/my_dialogs.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
+import 'package:simon_say_game/widgets/my_text_button.dart';
 import '../../provider/them_provider.dart';
 import '../../widgets/score_board_card.dart';
 
@@ -216,11 +217,11 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
     });
   }
 
-  MediaQueryData? mqData;
+  Size? mqData;
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    mqData = MediaQuery.of(context);
+    mqData = MediaQuery.of(context).size;
     return Animate(
       effects: [
         SlideEffect(
@@ -256,14 +257,14 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
                 child: isMute
                     ? Icon(
                         Icons.volume_up_outlined,
-                        size: mqData!.size.width * 0.07,
+                        size: mqData!.width * 0.07,
                         color: themeProvider.isDark
                             ? AppColors.darkPrimary
                             : AppColors.lightTextSecondary,
                       )
                     : Icon(
                         Icons.volume_off_rounded,
-                        size: mqData!.size.width * 0.07,
+                        size: mqData!.width * 0.07,
                         color: themeProvider.isDark
                             ? AppColors.darkPrimary
                             : AppColors.lightTextSecondary,
@@ -282,7 +283,7 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
                       themeProvider.isDark
                           ? Icons.dark_mode_rounded
                           : Icons.light_mode_rounded,
-                      size: mqData!.size.width * 0.07,
+                      size: mqData!.width * 0.07,
                       color: themeProvider.isDark
                           ? AppColors.darkPrimary
                           : AppColors.lightTextSecondary,
@@ -297,7 +298,7 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
               onPressed: () => MyDialogs.shareApp(context),
               icon: Icon(
                 Icons.share,
-                size: mqData!.size.width * 0.06,
+                size: mqData!.width * 0.06,
                 color: themeProvider.isDark
                     ? AppColors.darkPrimary
                     : AppColors.lightTextSecondary,
@@ -324,7 +325,7 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
               ),
 
               SizedBox(
-                height: mqData!.size.height * 0.03,
+                height: mqData!.height * 0.03,
               ),
 
               ///---------------BOX------------------///
@@ -356,53 +357,28 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
                     ),
 
                     SizedBox(
-                      height: mqData!.size.height * 0.05,
+                      height: mqData!.height * 0.05,
                     ),
 
-                    /// start button
-                    GestureDetector(
-                      onTap: started
-                          ? null
-                          : () {
-                              startGame();
-                              if (isMute) {
-                                audioPlayer
-                                    .play(AssetSource('audio/start.mp3'));
-                              }
-                            },
-
-                      /// outer container
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: started
-                                ? Colors.grey[300]
-                                : AppColors.lightPrimary.withAlpha(120),
-                            borderRadius: BorderRadius.circular(8)),
-
-                        /// inside container
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            width: mqData!.size.width,
-                            height: mqData!.size.height * 0.05,
-                            decoration: BoxDecoration(
-                                color: started
-                                    ? Colors.grey[500]
-                                    : AppColors.darkPrimary,
-                                borderRadius: BorderRadius.circular(8)),
-                            child: Center(
-                              child: Text(
-                                gameOver ? "Restart " : "START",
-                                style: myTextStyle24(context,
-                                    fontColor:
-                                        started ? Colors.black45 : Colors.black,
-                                    fontWeight: FontWeight.w900),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                    MyTextButton(
+                      onTap: () {
+                        started
+                            ? null
+                            : () {
+                                startGame();
+                                if (isMute) {
+                                  audioPlayer
+                                      .play(AssetSource('audio/start.mp3'));
+                                }
+                              };
+                      },
+                      btnRipColor: started
+                          ? Colors.grey
+                          : AppColors.lightPrimary.withAlpha(120),
+                      size: mqData!,
+                      btnColor: started ? Colors.grey : AppColors.darkPrimary,
+                      btnText: gameOver ? "Restart " : "START",
+                      textColor: started ? Colors.black45 : Colors.black,
                     ),
                   ],
                 ),
@@ -423,17 +399,15 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
       case "red":
         btnColor = Colors.red;
         borderRadius = const BorderRadius.only(
-            topLeft: Radius.circular(80),
-            bottomLeft: Radius.circular(80),
-
-            );
+          topLeft: Radius.circular(80),
+          bottomLeft: Radius.circular(80),
+        );
         break;
       case "yellow":
         btnColor = Colors.yellow;
         borderRadius = const BorderRadius.only(
           topRight: Radius.circular(80),
           bottomRight: Radius.circular(80),
-
         );
         break;
       case "green":
@@ -441,7 +415,6 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
         borderRadius = const BorderRadius.only(
           topRight: Radius.circular(80),
           bottomRight: Radius.circular(80),
-
         );
         break;
       case "blue":
@@ -449,7 +422,6 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
         borderRadius = const BorderRadius.only(
           topLeft: Radius.circular(80),
           bottomLeft: Radius.circular(80),
-
         );
         break;
 
@@ -458,7 +430,6 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
         borderRadius = const BorderRadius.only(
           topLeft: Radius.circular(80),
           bottomLeft: Radius.circular(80),
-
         );
         break;
 
@@ -467,7 +438,6 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
         borderRadius = const BorderRadius.only(
           topRight: Radius.circular(80),
           bottomRight: Radius.circular(80),
-
         );
         break;
 
@@ -476,7 +446,6 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
         borderRadius = const BorderRadius.only(
           topLeft: Radius.circular(80),
           bottomLeft: Radius.circular(80),
-
         );
         break;
 
@@ -485,7 +454,6 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
         borderRadius = const BorderRadius.only(
           topRight: Radius.circular(80),
           bottomRight: Radius.circular(80),
-
         );
         break;
 
@@ -494,17 +462,14 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
         borderRadius = const BorderRadius.only(
           topLeft: Radius.circular(80),
           bottomLeft: Radius.circular(80),
-
         );
         break;
-
 
       case "color10":
         btnColor = Color(0xff3e5c76);
         borderRadius = const BorderRadius.only(
           topRight: Radius.circular(80),
           bottomRight: Radius.circular(80),
-
         );
         break;
 
