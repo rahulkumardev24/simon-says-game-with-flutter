@@ -41,7 +41,7 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
 
   bool gameOver = false;
   int score = 0;
-  int maxScore = 0;
+  int _maxScore = 0;
 
   bool isMute = true;
   bool isLight = true;
@@ -60,14 +60,21 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
     "color10": false
   };
 
-  /// audio play
-  final AudioPlayer audioPlayer = AudioPlayer();
-
   @override
   void initState() {
     super.initState();
-    loadMaxScore();
-    loadMute();
+    initData();
+  }
+
+  void initData() async {
+    int loadedScore = await AppUtils.loadMaxScore(key: "tenBoxMaxScore");
+    bool loadMute = await AppUtils.loadMute();
+    bool loadVibrate = await AppUtils.loadVibration();
+    setState(() {
+      _maxScore = loadedScore;
+      isMute = loadMute;
+      isVibrate = loadVibrate;
+    });
   }
 
   /// -----Game Start function-----------///
@@ -106,12 +113,12 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
     }
 
     /// Check and update the maxScore if needed
-    if (score > maxScore) {
-      maxScore = score;
+    if (score > _maxScore) {
+      _maxScore = score;
     }
 
     /// call the function to save the max score into shared preference
-    saveMaxScore();
+    AppUtils.saveMaxScore(score: score, key: "tenBoxMaxScore");
 
     /// random index generate
     int randIdx = Random().nextInt(colors.length);
@@ -125,25 +132,42 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
   /// flashSequence function
   Future<void> flashSequence() async {
     for (String color in gameSeq) {
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // Play sound for computer flash
+      AppUtils.playSound(fileName: "audio/tap.mp3", isMute: isMute);
+
+      // Vibrate for computer flash
+      AppUtils.playVibration(isVibrate: isVibrate, durationMs: 100);
+
+      // Flash the box
       setState(() {
         flashMap[color] = true;
       });
+
       await Future.delayed(const Duration(milliseconds: 500));
       setState(() {
         flashMap[color] = false;
       });
     }
+
+    // Allow user to start playing
     setState(() {
       userTurn = true;
     });
   }
 
   /// user press functions
-  void userPress(String color) {
-    if (!userTurn) return;
+  bool isProcessingTap = false;
 
-    if (isMute) audioPlayer.play(AssetSource('audio/tap.mp3'));
+  /// user press functions
+  void userPress(String color) {
+    if (!userTurn || isProcessingTap) return;
+
+    isProcessingTap = true;
+
+    AppUtils.playSound(fileName: "audio/tap.mp3", isMute: isMute);
+    AppUtils.playVibration(isVibrate: isVibrate);
 
     setState(() {
       userSeq.add(color);
@@ -156,6 +180,7 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
       });
 
       checkAnswer(userSeq.length - 1);
+      isProcessingTap = false;
     });
   }
 
@@ -176,7 +201,8 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
 
   /// game over functions
   void gameOverSequence() {
-    if (isMute) audioPlayer.play(AssetSource("audio/over.mp3"));
+    AppUtils.playSound(fileName: "audio/over.mp3", isMute: isMute);
+    AppUtils.playVibration(isVibrate: isVibrate, durationMs: 400);
     setState(() {
       gameOver = true;
       started = false;
@@ -187,35 +213,6 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
         gameSeq.clear();
         userSeq.clear();
       });
-    });
-  }
-
-  ///------------------ SHARED PREFERENCES--------------------------///
-
-  /// Load max score from SharedPreferences
-  void loadMaxScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      maxScore = prefs.getInt('tenBoxMaxScore') ?? 0;
-    });
-  }
-
-  /// Save max score to SharedPreferences
-  void saveMaxScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('tenBoxMaxScore', maxScore);
-  }
-
-  /// -------------- Mute and unMute functions ------------------- ///
-  void saveMute() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setBool("checkMute", isMute);
-  }
-
-  void loadMute() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      isMute = preferences.getBool("checkMute") ?? true;
     });
   }
 
@@ -241,72 +238,13 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
                 fontColor: Colors.white, fontFamily: "secondary"),
           ),
           backgroundColor: themeProvider.isDark
-              ? const Color(0xff161A1D)
+              ? AppColors.darkCardBackground
               : AppColors.lightPrimary,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
                   bottomRight: Radius.circular(16),
                   bottomLeft: Radius.circular(16))),
-          actions: [
-            /// Volume
-            InkWell(
-                onTap: () {
-                  setState(() {
-                    isMute = !isMute;
-                  });
-                  saveMute();
-                },
-                child: isMute
-                    ? Icon(
-                        Icons.volume_up_outlined,
-                        size: mqData!.width * 0.07,
-                        color: themeProvider.isDark
-                            ? AppColors.darkPrimary
-                            : AppColors.lightTextSecondary,
-                      )
-                    : Icon(
-                        Icons.volume_off_rounded,
-                        size: mqData!.width * 0.07,
-                        color: themeProvider.isDark
-                            ? AppColors.darkPrimary
-                            : AppColors.lightTextSecondary,
-                      )),
-
-            /// light and dark them
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Consumer<ThemeProvider>(
-                builder: (context, themeProvider, child) {
-                  return InkWell(
-                    onTap: () {
-                      themeProvider.toggleTheme();
-                    },
-                    child: Icon(
-                      themeProvider.isDark
-                          ? Icons.dark_mode_rounded
-                          : Icons.light_mode_rounded,
-                      size: mqData!.width * 0.07,
-                      color: themeProvider.isDark
-                          ? AppColors.darkPrimary
-                          : AppColors.lightTextSecondary,
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            /// Share button
-            IconButton(
-              onPressed: () => MyDialogs.shareApp(context),
-              icon: Icon(
-                Icons.share,
-                size: mqData!.width * 0.06,
-                color: themeProvider.isDark
-                    ? AppColors.darkPrimary
-                    : AppColors.lightTextSecondary,
-              ),
-            ),
-          ],
+          centerTitle: true,
         ),
         backgroundColor: themeProvider.isDark
             ? AppColors.darkBackground
@@ -321,7 +259,7 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
               /// score card
               ScoreBoardCard(
                 scoreValue: score,
-                maxScore: maxScore,
+                maxScore: _maxScore,
                 isGameOver: gameOver,
                 level: level,
               ),
@@ -358,6 +296,7 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
                       },
                     ),
 
+                    /// start button
                     SizedBox(
                       height: mqData!.height * 0.05,
                     ),
@@ -366,18 +305,17 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
                       onTap: started
                           ? () {}
                           : () async {
-                        AppUtils.playSound(
-                          fileName: "audio/start.mp3",
-                          isMute: isMute,
-                        );
-                        AppUtils.playVibration(
-                          isVibrate: isVibrate,
-                          durationMs: 400,
-                        );
-                        await Future.delayed(Duration(milliseconds: 800));
-                        startGame();
-                      },
-
+                              AppUtils.playSound(
+                                fileName: "audio/start.mp3",
+                                isMute: isMute,
+                              );
+                              AppUtils.playVibration(
+                                isVibrate: isVibrate,
+                                durationMs: 400,
+                              );
+                              await Future.delayed(Duration(milliseconds: 800));
+                              startGame();
+                            },
                       btnRipColor: started
                           ? Colors.grey
                           : AppColors.lightPrimary.withAlpha(120),

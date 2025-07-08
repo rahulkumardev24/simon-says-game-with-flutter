@@ -1,14 +1,10 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simon_say_game/helper/colors.dart';
-import 'package:simon_say_game/helper/my_dialogs.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
-
 import '../../provider/them_provider.dart';
 import '../../utils/app_utils.dart';
 import '../../widgets/my_text_button.dart';
@@ -113,7 +109,7 @@ class _SimonSaysGameState extends State<EightBoxScreen> {
     }
 
     /// call the function to save the max score into shared preference
-   AppUtils.saveMaxScore(score: score, key: "eightBoxMaxScore");
+    AppUtils.saveMaxScore(score: score, key: "eightBoxMaxScore");
 
     /// random index generate
     int randIdx = Random().nextInt(colors.length);
@@ -151,7 +147,6 @@ class _SimonSaysGameState extends State<EightBoxScreen> {
       userTurn = true;
     });
   }
-
 
   /// user press functions
   bool isProcessingTap = false;
@@ -211,7 +206,6 @@ class _SimonSaysGameState extends State<EightBoxScreen> {
       });
     });
   }
-
 
   Size? size;
   @override
@@ -302,17 +296,17 @@ class _SimonSaysGameState extends State<EightBoxScreen> {
                       onTap: started
                           ? () {}
                           : () async {
-                        AppUtils.playSound(
-                          fileName: "audio/start.mp3",
-                          isMute: isMute,
-                        );
-                        AppUtils.playVibration(
-                          isVibrate: isVibrate,
-                          durationMs: 400,
-                        );
-                        await Future.delayed(Duration(milliseconds: 800));
-                        startGame();
-                      },
+                              AppUtils.playSound(
+                                fileName: "audio/start.mp3",
+                                isMute: isMute,
+                              );
+                              AppUtils.playVibration(
+                                isVibrate: isVibrate,
+                                durationMs: 400,
+                              );
+                              await Future.delayed(Duration(milliseconds: 800));
+                              startGame();
+                            },
                       btnRipColor: started
                           ? Colors.grey
                           : AppColors.lightPrimary.withAlpha(120),
