@@ -25,7 +25,7 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
   bool gameOver = false;
   int score = 0;
   int _maxScore = 0;
-  bool isMute = true;
+  bool isMute = false;
   bool isLight = true;
   bool isVibrate = true;
 
@@ -211,66 +211,6 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
             borderRadius: BorderRadius.only(
                 bottomRight: Radius.circular(16),
                 bottomLeft: Radius.circular(16))),
-        actions: [
-          /// Volume
-          InkWell(
-              onTap: () {
-                setState(() {
-                  isMute = !isMute;
-                });
-                AppUtils.saveMute(isMute);
-              },
-              child: isMute
-                  ? Icon(
-                      Icons.volume_up_outlined,
-                      size: mqData!.size.width * 0.07,
-                      color: themeProvider.isDark
-                          ? AppColors.darkPrimary
-                          : AppColors.lightTextSecondary,
-                    )
-                  : Icon(
-                      Icons.volume_off_rounded,
-                      size: mqData!.size.width * 0.07,
-                      color: themeProvider.isDark
-                          ? AppColors.darkPrimary
-                          : AppColors.lightTextSecondary,
-                    )),
-
-          /// light and dark them
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Consumer<ThemeProvider>(
-              builder: (context, themeProvider, child) {
-                return InkWell(
-                  onTap: () {
-                    themeProvider.toggleTheme();
-                  },
-                  child: Icon(
-                    themeProvider.isDark
-                        ? Icons.dark_mode_rounded
-                        : Icons.light_mode_rounded,
-                    size: mqData!.size.width * 0.07,
-                    color: themeProvider.isDark
-                        ? AppColors.darkPrimary
-                        : AppColors.lightTextSecondary,
-                  ),
-                );
-              },
-            ),
-          ),
-
-          /// Share button
-          IconButton(
-            onPressed: () => MyDialogs.shareApp(context),
-            icon: Icon(
-              Icons.share,
-              size: mqData!.size.width * 0.06,
-              color: themeProvider.isDark
-                  ? AppColors.darkPrimary
-                  : AppColors.lightTextSecondary,
-            ),
-          ),
-        ],
       ),
       backgroundColor: themeProvider.isDark
           ? AppColors.darkBackground

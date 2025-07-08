@@ -36,7 +36,6 @@ class AppUtils {
 
   static Future<bool> loadVibration() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-
     return preferences.getBool("checkVibration") ?? true;
   }
 

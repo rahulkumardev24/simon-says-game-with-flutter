@@ -6,6 +6,7 @@ import '../helper/colors.dart';
 class MyIconButton extends StatelessWidget {
   final IconData icon;
   final Color? iconColor;
+  final backgroundColor ;
   final double iconSize;
   final VoidCallback onTap;
 
@@ -15,6 +16,7 @@ class MyIconButton extends StatelessWidget {
     this.iconColor = AppColors.lightIconPrimary,
     this.iconSize = 23.0,
     required this.onTap,
+    required this.backgroundColor
   });
 
   @override
@@ -24,8 +26,9 @@ class MyIconButton extends StatelessWidget {
         onTap: onTap,
         child: Container(
             decoration: BoxDecoration(
-                color: AppColors.secondaryLight,
+                color: backgroundColor,
                 borderRadius: BorderRadius.circular(200)),
+
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child:

@@ -1,4 +1,4 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +50,6 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
   bool isLight = true;
   bool isVibrate = true;
 
-
   @override
   void initState() {
     super.initState();
@@ -84,8 +83,10 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
 
   void _loadSettingData() async {
     bool loadVibration = await AppUtils.loadVibration();
+    bool loadMute = await AppUtils.loadMute();
     setState(() {
       isVibrate = loadVibration;
+      isMute = loadMute;
     });
   }
 
@@ -98,7 +99,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: size.height * 0.3,
-        flexibleSpace: _buildAppBar(themeProvider, size),
+        flexibleSpace: _buildAppBar(isDarkMode, size),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -130,7 +131,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
     );
   }
 
-  Widget _buildAppBar(ThemeProvider themeProvider, Size size) {
+  Widget _buildAppBar(bool isDarkMode, Size size) {
     return VxArc(
       height: size.height * 0.03,
       edge: VxEdge.bottom,
@@ -138,22 +139,32 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
       child: Container(
         padding: EdgeInsets.all(16),
         width: double.infinity,
-        color: themeProvider.isDark
-            ? AppColors.darkBackground
-            : AppColors.lightPrimary,
+        color:
+            isDarkMode ? AppColors.darkCardBackground : AppColors.lightPrimary,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Spacer(flex: 1,),
+            Spacer(
+              flex: 1,
+            ),
+
             /// Setting
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 /// volume button
                 MyIconButton(
-                    icon: isMute
-                        ? FontAwesomeIcons.volumeHigh
-                        : FontAwesomeIcons.volumeXmark,
+                    icon: FontAwesomeIcons.volumeLow,
+                    iconColor: !isMute
+                        ? AppColors.darkIconSecondary.withValues(alpha: 0.6)
+                        : isDarkMode
+                            ? AppColors.darkIconPrimary
+                            : AppColors.lightIconSecondary,
+                    backgroundColor: !isMute
+                        ? AppColors.lightDisable
+                        : isDarkMode
+                            ? AppColors.darkPrimary
+                            : AppColors.lightBackground.withValues(alpha: 0.9),
                     onTap: () {
                       setState(() {
                         isMute = !isMute;
@@ -164,7 +175,16 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                 /// vibration
                 MyIconButton(
                     icon: Icons.vibration_rounded,
-                    iconColor: isVibrate ? Colors.blue : Colors.grey,
+                    iconColor: !isVibrate
+                        ? AppColors.darkIconSecondary.withValues(alpha: 0.6)
+                        : isDarkMode
+                            ? AppColors.darkIconPrimary
+                            : AppColors.lightIconSecondary,
+                    backgroundColor: !isVibrate
+                        ? AppColors.lightDisable
+                        : isDarkMode
+                            ? AppColors.darkPrimary
+                            : AppColors.lightBackground.withValues(alpha: 0.9),
                     onTap: () {
                       setState(() {
                         isVibrate = !isVibrate;
@@ -172,15 +192,19 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                       AppUtils.saveVibration(isVibrate);
                     }),
 
-
-
                 /// light and dark them
                 Consumer<ThemeProvider>(
                   builder: (context, themeProvider, child) {
                     return MyIconButton(
                         icon: themeProvider.isDark
-                            ? Icons.dark_mode_rounded
-                            : Icons.light_mode_rounded,
+                            ? FontAwesomeIcons.solidSun
+                            : FontAwesomeIcons.solidMoon,
+                        iconColor: isDarkMode
+                            ? AppColors.darkIconPrimary
+                            : AppColors.lightIconSecondary,
+                        backgroundColor: isDarkMode
+                            ? AppColors.darkPrimary
+                            : AppColors.lightBackground.withValues(alpha: 0.9),
                         onTap: () {
                           themeProvider.toggleTheme();
                         });
@@ -190,37 +214,34 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                 /// share
                 MyIconButton(
                     icon: FontAwesomeIcons.shareNodes,
-                    iconColor: themeProvider.isDark
+                    iconColor: isDarkMode
+                        ? AppColors.darkIconPrimary
+                        : AppColors.lightIconSecondary,
+                    backgroundColor: isDarkMode
                         ? AppColors.darkPrimary
-                        : AppColors.lightTextSecondary,
+                        : AppColors.lightBackground.withValues(alpha: 0.9),
                     onTap: () => MyDialogs.shareApp(context)),
 
-                /// vibration
-                ElevatedButton.icon(
-                  icon: Icon(Icons.info_outline_rounded),
-                  label: Text("Game Rules"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: themeProvider.isDark
+                /// Game Rule
+                MyIconButton(
+                    icon: FontAwesomeIcons.info,
+                    iconColor: isDarkMode
+                        ? AppColors.darkIconPrimary
+                        : AppColors.lightIconSecondary,
+                    backgroundColor: isDarkMode
                         ? AppColors.darkPrimary
-                        : AppColors.lightPrimary,
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const GameRulesScreen()),
-                    );
-                  },
-                )
-
+                        : AppColors.lightBackground.withValues(alpha: 0.9),
+                    onTap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => GameRulesScreen()))),
               ],
             ),
 
-           Spacer(),
+            Spacer(),
             Text(
               "CHOOSE DIFFICULTY",
               style: myTextStyle24(
                 context,
-                fontColor: themeProvider.isDark
+                fontColor: isDarkMode
                     ? AppColors.darkPrimary
                     : AppColors.lightTextPrimary,
                 fontWeight: FontWeight.bold,
@@ -233,12 +254,14 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                 context,
                 fontFamily: "secondary",
                 fontWeight: FontWeight.bold,
-                fontColor: themeProvider.isDark
+                fontColor: isDarkMode
                     ? AppColors.darkTextSecondary
                     : AppColors.lightTextSecondary,
               ),
             ),
-            Spacer(flex: 1,),
+            Spacer(
+              flex: 1,
+            ),
           ],
         ),
       ),
@@ -250,8 +273,8 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
-      mainAxisSpacing: 20,
-      crossAxisSpacing: 20,
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
       childAspectRatio: 1,
       children: availableBoxCounts.map((count) {
         return Animate(
@@ -286,14 +309,6 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                       : AppColors.lightPrimary,
                   width: 2,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                    offset: Offset(0, 5),
-                  ),
-                ],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -362,15 +377,10 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
           ],
           child: Container(
             decoration: BoxDecoration(
-              color: _getColorForString(boxColors[boxCount]![index]),
-              borderRadius: BorderRadius.circular(5),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 2,
-                    offset: Offset(1, 1)),
-              ],
-            ),
+                color: _getColorForString(boxColors[boxCount]![index]),
+                borderRadius: BorderRadius.circular(5),
+                border:
+                    Border.all(width: 1, color: AppColors.darkCardBackground)),
           ),
         );
       }),

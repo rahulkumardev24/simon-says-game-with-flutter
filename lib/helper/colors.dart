@@ -5,12 +5,13 @@ class AppColors {
   static const Color lightPrimary = Color(0xffF49BAB);
   static const Color lightPrimaryLight = Color(0xffffc8d3);
   static const Color lightPrimaryDark = Color(0xfff38fa1);
-  static const Color lightBackground = Color(0xffffffff);
-  static const Color lightSurface = Color(0xffaaaaaa);
-  static const Color lightOnPrimary = Color(0xff000000);
-  static const Color lightOnBackground = Color(0xff333333);
-  static const Color lightOnSurface = Color(0xff444444);
   static const Color lightError = Color(0xffd32f2f);
+  static const Color lightDisable = Color(0xCA6E6D6D);
+
+  /// background
+  static const Color darkBackground = Color(0xff222831);
+  static const Color darkCardBackground = Color(0xff27374D);
+  static const Color lightBackground = Color(0xffffffff);
 
   // secondary
 
@@ -22,11 +23,7 @@ class AppColors {
   static const Color darkPrimaryLight = Color(0xffffafbf);
   static const Color darkPrimaryDark = Color(0xfff38fa1);
   static const Color darkAppBar = Color(0xff090909);
-  static const Color darkBackground = Color(0xff171717);
-  static const Color darkSurface = Color(0xff1e1e1e);
-  static const Color darkOnPrimary = Color(0xffffffff);
-  static const Color darkOnBackground = Color(0xffffffff);
-  static const Color darkOnSurface = Color(0xffe0e0e0);
+
   static const Color darkError = Color(0xffcf6679);
 
   // Text Colors

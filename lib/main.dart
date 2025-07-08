@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:simon_say_game/provider/them_provider.dart';
 import 'package:simon_say_game/screen/game_screen/six_box_screen.dart';
 import 'package:simon_say_game/screen/game_selection_screen.dart';
+import 'package:simon_say_game/screen/splash%20screen/splash_screen.dart';
 
 void main() {
   /// use for stop device orientation
@@ -38,6 +39,6 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: Colors.black,
         ), // Dark theme background
 
-        home: GameSelectionScreen());
+        home: SplashScreen());
   }
 }

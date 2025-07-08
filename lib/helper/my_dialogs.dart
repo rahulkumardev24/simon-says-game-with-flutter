@@ -43,7 +43,7 @@ class MyDialogs {
                 height: mqData.height * 0.5,
                 decoration: BoxDecoration(
                   color: themeProvider.isDark
-                      ? AppColors.darkSurface
+                      ? AppColors.darkBackground
                       : AppColors.lightPrimaryLight,
                   borderRadius: BorderRadius.circular(24),
                 ),

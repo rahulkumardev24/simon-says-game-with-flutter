@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simon_say_game/provider/them_provider.dart';
-import 'package:simon_say_game/screen/game_screen/four_box_screen.dart';
+import 'package:simon_say_game/screen/game_selection_screen.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 import '../../helper/colors.dart';
 
@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => FourBoxScreen()),
+        MaterialPageRoute(builder: (context) => GameSelectionScreen()),
       );
     });
   }
