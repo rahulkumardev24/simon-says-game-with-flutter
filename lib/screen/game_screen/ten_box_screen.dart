@@ -10,6 +10,7 @@ import 'package:simon_say_game/helper/my_dialogs.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 import 'package:simon_say_game/widgets/my_text_button.dart';
 import '../../provider/them_provider.dart';
+import '../../utils/app_utils.dart';
 import '../../widgets/score_board_card.dart';
 
 class TenBoxScreen extends StatefulWidget {
@@ -44,6 +45,7 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
 
   bool isMute = true;
   bool isLight = true;
+  bool isVibrate = true;
 
   Map<String, bool> flashMap = {
     "red": false,
@@ -361,17 +363,21 @@ class _SimonSaysGameState extends State<TenBoxScreen> {
                     ),
 
                     MyTextButton(
-                      onTap: () {
-                        started
-                            ? null
-                            : () {
-                                startGame();
-                                if (isMute) {
-                                  audioPlayer
-                                      .play(AssetSource('audio/start.mp3'));
-                                }
-                              };
+                      onTap: started
+                          ? () {}
+                          : () async {
+                        AppUtils.playSound(
+                          fileName: "audio/start.mp3",
+                          isMute: isMute,
+                        );
+                        AppUtils.playVibration(
+                          isVibrate: isVibrate,
+                          durationMs: 400,
+                        );
+                        await Future.delayed(Duration(milliseconds: 800));
+                        startGame();
                       },
+
                       btnRipColor: started
                           ? Colors.grey
                           : AppColors.lightPrimary.withAlpha(120),

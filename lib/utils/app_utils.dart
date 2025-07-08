@@ -3,18 +3,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 
 class AppUtils {
-  static final AudioPlayer _audioPlayer = AudioPlayer();
+
 
   /// load max score
-  static Future<int> loadMaxScore() async {
+  static Future<int> loadMaxScore( { required String key}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('maxScore') ?? 0;
+    return prefs.getInt(key) ?? 0;                             /// maxScore
   }
 
   /// Save max score
-  static Future<void> saveMaxScore(int score) async {
+  static Future<void> saveMaxScore({ required int score , required String key}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('maxScore', score);
+    await prefs.setInt(key, score);
   }
 
   /// Mute status

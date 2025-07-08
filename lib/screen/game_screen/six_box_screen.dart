@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simon_say_game/helper/colors.dart';
-import 'package:simon_say_game/helper/my_dialogs.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
-
 import '../../provider/them_provider.dart';
+import '../../utils/app_utils.dart';
+import '../../widgets/my_text_button.dart';
 import '../../widgets/score_board_card.dart';
 
 class SixBoxScreen extends StatefulWidget {
@@ -17,8 +15,6 @@ class SixBoxScreen extends StatefulWidget {
 }
 
 class _SimonSaysGameState extends State<SixBoxScreen> {
-  final String playStoreLink =
-      "https://play.google.com/store/apps/details?id=com.appcreatorrahul.simonsay";
   List<String> gameSeq = [];
   List<String> userSeq = [];
   List<String> colors = ["blue", "green", "red", "yellow", "orange", "cyan"];
@@ -28,10 +24,11 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
 
   bool gameOver = false;
   int score = 0;
-  int maxScore = 0;
+  int _maxScore = 0;
 
-  bool isMute = true;
+  bool isMute = false;
   bool isLight = true;
+  bool isVibrate = true;
 
   Map<String, bool> flashMap = {
     "red": false,
@@ -42,14 +39,21 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
     "cyan": false
   };
 
-  /// audio play
-  final AudioPlayer audioPlayer = AudioPlayer();
-
   @override
   void initState() {
     super.initState();
-    loadMaxScore();
-    loadMute();
+    initData();
+  }
+
+  void initData() async {
+    int loadedScore = await AppUtils.loadMaxScore(key: "sixBoxMaxScore");
+    bool loadMute = await AppUtils.loadMute();
+    bool loadVibrate = await AppUtils.loadVibration();
+    setState(() {
+      _maxScore = loadedScore;
+      isMute = loadMute;
+      isVibrate = loadVibrate;
+    });
   }
 
   /// -----Game Start function-----------///
@@ -88,12 +92,12 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
     }
 
     /// Check and update the maxScore if needed
-    if (score > maxScore) {
-      maxScore = score;
+    if (score > _maxScore) {
+      _maxScore = score;
     }
 
-    /// call the function to save the max score into shared preference
-    saveMaxScore();
+    /// call save max score
+    AppUtils.saveMaxScore(score: _maxScore, key: "sixBoxMaxScore");
 
     /// random index generate
     int randIdx = Random().nextInt(colors.length);
@@ -107,25 +111,42 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
   /// flashSequence function
   Future<void> flashSequence() async {
     for (String color in gameSeq) {
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // Play sound for computer flash
+      AppUtils.playSound(fileName: "audio/tap.mp3", isMute: isMute);
+
+      // Vibrate for computer flash
+      AppUtils.playVibration(isVibrate: isVibrate, durationMs: 100);
+
+      // Flash the box
       setState(() {
         flashMap[color] = true;
       });
+
       await Future.delayed(const Duration(milliseconds: 500));
       setState(() {
         flashMap[color] = false;
       });
     }
+
+    // Allow user to start playing
     setState(() {
       userTurn = true;
     });
   }
 
   /// user press functions
-  void userPress(String color) {
-    if (!userTurn) return;
+  bool isProcessingTap = false;
 
-    if (isMute) audioPlayer.play(AssetSource('audio/tap.mp3'));
+  /// user press functions
+  void userPress(String color) {
+    if (!userTurn || isProcessingTap) return;
+
+    isProcessingTap = true;
+
+    AppUtils.playSound(fileName: "audio/tap.mp3", isMute: isMute);
+    AppUtils.playVibration(isVibrate: isVibrate);
 
     setState(() {
       userSeq.add(color);
@@ -138,9 +159,9 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
       });
 
       checkAnswer(userSeq.length - 1);
+      isProcessingTap = false;
     });
   }
-
   /// ans check functions
   void checkAnswer(int idx) {
     if (userSeq[idx] != gameSeq[idx]) {
@@ -158,7 +179,8 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
 
   /// game over functions
   void gameOverSequence() {
-    if (isMute) audioPlayer.play(AssetSource("audio/over.mp3"));
+    AppUtils.playSound(fileName: "audio/over.mp3", isMute: isMute);
+    AppUtils.playVibration(isVibrate: isVibrate, durationMs: 400);
     setState(() {
       gameOver = true;
       started = false;
@@ -172,40 +194,11 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
     });
   }
 
-  ///------------------ SHARED PREFERENCES--------------------------///
-
-  /// Load max score from SharedPreferences
-  void loadMaxScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      maxScore = prefs.getInt('sixBoxMaxScore') ?? 0;
-    });
-  }
-
-  /// Save max score to SharedPreferences
-  void saveMaxScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('sixBoxMaxScore', maxScore);
-  }
-
-  /// -------------- Mute and unMute functions ------------------- ///
-  void saveMute() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setBool("checkMute", isMute);
-  }
-
-  void loadMute() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      isMute = preferences.getBool("checkMute") ?? true;
-    });
-  }
-
-  MediaQueryData? mqData;
+  Size? size;
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    mqData = MediaQuery.of(context);
+    size = MediaQuery.of(context).size;
     return Scaffold(
       /// --------------------APPBAR------------------------///
       appBar: AppBar(
@@ -216,72 +209,13 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
               fontColor: Colors.white, fontFamily: "secondary"),
         ),
         backgroundColor: themeProvider.isDark
-            ? const Color(0xff161A1D)
+            ? AppColors.darkCardBackground
             : AppColors.lightPrimary,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 bottomRight: Radius.circular(16),
                 bottomLeft: Radius.circular(16))),
-        actions: [
-          /// Volume
-          InkWell(
-              onTap: () {
-                setState(() {
-                  isMute = !isMute;
-                });
-                saveMute();
-              },
-              child: isMute
-                  ? Icon(
-                      Icons.volume_up_outlined,
-                      size: mqData!.size.width * 0.07,
-                      color: themeProvider.isDark
-                          ? AppColors.darkPrimary
-                          : AppColors.lightTextSecondary,
-                    )
-                  : Icon(
-                      Icons.volume_off_rounded,
-                      size: mqData!.size.width * 0.07,
-                      color: themeProvider.isDark
-                          ? AppColors.darkPrimary
-                          : AppColors.lightTextSecondary,
-                    )),
-
-          /// light and dark them
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Consumer<ThemeProvider>(
-              builder: (context, themeProvider, child) {
-                return InkWell(
-                  onTap: () {
-                    themeProvider.toggleTheme();
-                  },
-                  child: Icon(
-                    themeProvider.isDark
-                        ? Icons.dark_mode_rounded
-                        : Icons.light_mode_rounded,
-                    size: mqData!.size.width * 0.07,
-                    color: themeProvider.isDark
-                        ? AppColors.darkPrimary
-                        : AppColors.lightTextSecondary,
-                  ),
-                );
-              },
-            ),
-          ),
-
-          /// Share button
-          IconButton(
-            onPressed: () => MyDialogs.shareApp(context),
-            icon: Icon(
-              Icons.share,
-              size: mqData!.size.width * 0.06,
-              color: themeProvider.isDark
-                  ? AppColors.darkPrimary
-                  : AppColors.lightTextSecondary,
-            ),
-          ),
-        ],
+        centerTitle: true,
       ),
       backgroundColor: themeProvider.isDark
           ? AppColors.darkBackground
@@ -296,13 +230,13 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
             /// score card
             ScoreBoardCard(
               scoreValue: score,
-              maxScore: maxScore,
+              maxScore: _maxScore,
               isGameOver: gameOver,
               level: level,
             ),
 
             SizedBox(
-              height: mqData!.size.height * 0.03,
+              height: size!.height * 0.03,
             ),
 
             ///---------------BOX------------------///
@@ -328,52 +262,32 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
                   ),
 
                   SizedBox(
-                    height: mqData!.size.height * 0.05,
+                    height: size!.height * 0.05,
                   ),
 
                   /// start button
-                  GestureDetector(
+                  MyTextButton(
                     onTap: started
-                        ? null
-                        : () {
+                        ? () {}
+                        : () async {
+                            AppUtils.playSound(
+                              fileName: "audio/start.mp3",
+                              isMute: isMute,
+                            );
+                            AppUtils.playVibration(
+                              isVibrate: isVibrate,
+                              durationMs: 400,
+                            );
+                            await Future.delayed(Duration(milliseconds: 800));
                             startGame();
-                            if (isMute) {
-                              audioPlayer.play(AssetSource('audio/start.mp3'));
-                            }
                           },
-
-                    /// outer container
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: started
-                              ? Colors.grey[300]
-                              : AppColors.lightPrimary.withAlpha(120),
-                          borderRadius: BorderRadius.circular(8)),
-
-                      /// inside container
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          width: mqData!.size.width,
-                          height: mqData!.size.height * 0.05,
-                          decoration: BoxDecoration(
-                              color: started
-                                  ? Colors.grey[500]
-                                  : AppColors.darkPrimary,
-                              borderRadius: BorderRadius.circular(8)),
-                          child: Center(
-                            child: Text(
-                              gameOver ? "Restart " : "START",
-                              style: myTextStyle24(context,
-                                  fontColor:
-                                      started ? Colors.black45 : Colors.black,
-                                  fontWeight: FontWeight.w900),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    btnRipColor: started
+                        ? Colors.grey
+                        : AppColors.lightPrimary.withAlpha(120),
+                    size: size!,
+                    btnColor: started ? Colors.grey : AppColors.darkPrimary,
+                    btnText: gameOver ? "Restart " : "START",
+                    textColor: started ? Colors.black45 : Colors.black,
                   ),
                 ],
               ),

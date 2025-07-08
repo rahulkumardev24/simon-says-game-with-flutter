@@ -43,7 +43,7 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
   }
 
   void initData() async {
-    int loadedScore = await AppUtils.loadMaxScore();
+    int loadedScore = await AppUtils.loadMaxScore( key: "maxScore");
     bool loadMute = await AppUtils.loadMute();
     bool loadVibrate = await AppUtils.loadVibration();
     setState(() {
@@ -94,7 +94,7 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
     }
 
     /// call save max score
-    AppUtils.saveMaxScore(_maxScore);
+    AppUtils.saveMaxScore(score: _maxScore, key: "maxScore");
 
     /// random index generate
     int randIdx = Random().nextInt(colors.length);
@@ -204,8 +204,9 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
           style: myTextStyle24(context,
               fontColor: Colors.white, fontFamily: "secondary"),
         ),
+        centerTitle: true,
         backgroundColor: themeProvider.isDark
-            ? const Color(0xff161A1D)
+            ? AppColors.darkCardBackground
             : AppColors.lightPrimary,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
@@ -299,7 +300,8 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
                             width: mqData!.size.height * 0.15,
                             decoration: BoxDecoration(
                               color: started
-                                  ? Colors.grey[500]
+                                  ? AppColors.lightDisable
+                                      .withValues(alpha: 0.9)
                                   : AppColors.darkPrimary,
                               shape: BoxShape.circle,
                             ),
@@ -307,8 +309,9 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
                               child: Text(
                                 gameOver ? "Restart " : "START",
                                 style: myTextStyle24(context,
-                                    fontColor:
-                                        started ? Colors.black45 : Colors.black,
+                                    fontColor: started
+                                        ? AppColors.lightTextSecondary
+                                        : AppColors.darkTextPrimary,
                                     fontWeight: FontWeight.w900),
                                 textAlign: TextAlign.center,
                               ),
