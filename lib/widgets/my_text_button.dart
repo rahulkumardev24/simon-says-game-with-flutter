@@ -29,18 +29,20 @@ class MyTextButton extends StatelessWidget {
 
         /// inside container
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(4.0),
           child: Container(
             width: size.width,
-            height: size.height * 0.05,
             decoration: BoxDecoration(
                 color: btnColor, borderRadius: BorderRadius.circular(8)),
             child: Center(
-              child: Text(
-                btnText,
-                style: myTextStyle24(context,
-                    fontColor: textColor, fontWeight: FontWeight.w900),
-                textAlign: TextAlign.center,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  btnText,
+                  style: myTextStyle24(context,
+                      fontColor: textColor, fontWeight: FontWeight.w900),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ),

@@ -296,11 +296,11 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                   end: Alignment.bottomRight,
                   colors: [
                     themeProvider.isDark
-                        ? AppColors.darkPrimary.withOpacity(0.1)
-                        : AppColors.lightPrimary.withOpacity(0.1),
+                        ? AppColors.darkPrimary.withValues(alpha: 0.1)
+                        : AppColors.lightPrimary.withValues(alpha: 0.1),
                     themeProvider.isDark
-                        ? AppColors.darkPrimary.withOpacity(0.3)
-                        : AppColors.lightPrimary.withOpacity(0.3),
+                        ? AppColors.darkPrimary.withValues(alpha: 0.3)
+                        : AppColors.lightPrimary.withValues(alpha: 0.3),
                   ],
                 ),
                 border: Border.all(
