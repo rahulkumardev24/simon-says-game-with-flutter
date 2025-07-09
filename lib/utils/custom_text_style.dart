@@ -8,8 +8,8 @@ Color getTextColor(BuildContext context, Color? fontColor) {
 /// font Size 12
 TextStyle myTextStyle12(BuildContext context,
     {String fontFamily = "primary",
-      Color? fontColor,
-      FontWeight fontWeight = FontWeight.normal}) {
+    Color? fontColor,
+    FontWeight fontWeight = FontWeight.normal}) {
   return TextStyle(
     color: getTextColor(context, fontColor),
     fontSize: 12,
@@ -21,8 +21,8 @@ TextStyle myTextStyle12(BuildContext context,
 /// font Size 15
 TextStyle myTextStyle15(BuildContext context,
     {String fontFamily = "primary",
-      Color? fontColor,
-      FontWeight fontWeight = FontWeight.normal}) {
+    Color? fontColor,
+    FontWeight fontWeight = FontWeight.normal}) {
   return TextStyle(
     color: getTextColor(context, fontColor),
     fontSize: 15,
@@ -34,8 +34,8 @@ TextStyle myTextStyle15(BuildContext context,
 /// font Size 16
 TextStyle myTextStyle16(BuildContext context,
     {String fontFamily = "primary",
-      Color? fontColor,
-      FontWeight fontWeight = FontWeight.normal}) {
+    Color? fontColor,
+    FontWeight fontWeight = FontWeight.normal}) {
   return TextStyle(
     color: getTextColor(context, fontColor),
     fontSize: 16,
@@ -47,8 +47,8 @@ TextStyle myTextStyle16(BuildContext context,
 /// font Size 18
 TextStyle myTextStyle18(BuildContext context,
     {String fontFamily = "primary",
-      Color? fontColor,
-      FontWeight fontWeight = FontWeight.normal}) {
+    Color? fontColor,
+    FontWeight fontWeight = FontWeight.normal}) {
   return TextStyle(
     color: getTextColor(context, fontColor),
     fontSize: 18,
@@ -59,8 +59,8 @@ TextStyle myTextStyle18(BuildContext context,
 
 TextStyle myTextStyle20(BuildContext context,
     {String fontFamily = "primary",
-      Color? fontColor,
-      FontWeight fontWeight = FontWeight.normal}) {
+    Color? fontColor,
+    FontWeight fontWeight = FontWeight.normal}) {
   return TextStyle(
     color: getTextColor(context, fontColor),
     fontSize: 20,
@@ -72,8 +72,8 @@ TextStyle myTextStyle20(BuildContext context,
 /// font Size 24
 TextStyle myTextStyle24(BuildContext context,
     {String fontFamily = "primary",
-      Color? fontColor,
-      FontWeight fontWeight = FontWeight.normal}) {
+    Color? fontColor,
+    FontWeight fontWeight = FontWeight.normal}) {
   return TextStyle(
     color: getTextColor(context, fontColor),
     fontSize: 24,
@@ -82,11 +82,27 @@ TextStyle myTextStyle24(BuildContext context,
   );
 }
 
+/// font Size 24
+TextStyle myTextStyleCus(
+  BuildContext context, {
+  String fontFamily = "primary",
+  Color? fontColor,
+  double fontSize = 24,
+  FontWeight fontWeight = FontWeight.normal,
+}) {
+  return TextStyle(
+    color: getTextColor(context, fontColor),
+    fontSize: fontSize,
+    fontFamily: fontFamily,
+    fontWeight: fontWeight,
+  );
+}
+
 /// font Size 36
 TextStyle myTextStyle36(BuildContext context,
     {String fontFamily = "primary",
-      Color? fontColor,
-      FontWeight fontWeight = FontWeight.normal}) {
+    Color? fontColor,
+    FontWeight fontWeight = FontWeight.normal}) {
   return TextStyle(
     color: getTextColor(context, fontColor),
     fontSize: 36,
@@ -98,8 +114,8 @@ TextStyle myTextStyle36(BuildContext context,
 /// font Size 48
 TextStyle myTextStyle48(BuildContext context,
     {String fontFamily = "primary",
-      Color? fontColor,
-      FontWeight fontWeight = FontWeight.normal}) {
+    Color? fontColor,
+    FontWeight fontWeight = FontWeight.normal}) {
   return TextStyle(
     color: getTextColor(context, fontColor),
     fontSize: 48,

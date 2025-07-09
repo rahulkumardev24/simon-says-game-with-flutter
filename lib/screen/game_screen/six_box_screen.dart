@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:simon_say_game/helper/colors.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
@@ -162,6 +163,7 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
       isProcessingTap = false;
     });
   }
+
   /// ans check functions
   void checkAnswer(int idx) {
     if (userSeq[idx] != gameSeq[idx]) {
@@ -199,100 +201,123 @@ class _SimonSaysGameState extends State<SixBoxScreen> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     size = MediaQuery.of(context).size;
-    return Scaffold(
-      /// --------------------APPBAR------------------------///
-      appBar: AppBar(
-        /// title
-        title: Text(
-          "Simon says",
-          style: myTextStyle24(context,
-              fontColor: Colors.white, fontFamily: "secondary"),
-        ),
-        backgroundColor: themeProvider.isDark
-            ? AppColors.darkCardBackground
-            : AppColors.lightPrimary,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(16),
-                bottomLeft: Radius.circular(16))),
-        centerTitle: true,
-      ),
-      backgroundColor: themeProvider.isDark
-          ? AppColors.darkBackground
-          : AppColors.lightBackground,
-
-      /// ---- body ---- ///
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            /// score card
-            ScoreBoardCard(
-              scoreValue: score,
-              maxScore: _maxScore,
-              isGameOver: gameOver,
-              level: level,
+    return SafeArea(
+      child: Animate(
+        effects: [
+          SlideEffect(
+              duration: 1200.milliseconds,
+              delay: 100.ms,
+              curve: Curves.easeOutExpo)
+        ],
+        child: Scaffold(
+          /// --------------------APPBAR------------------------///
+          appBar: AppBar(
+            /// title
+            title: Text(
+              "Simon says",
+              style: myTextStyle24(context,
+                  fontColor: Colors.white, fontFamily: "secondary"),
             ),
+            backgroundColor: themeProvider.isDark
+                ? AppColors.darkCardBackground
+                : AppColors.lightPrimary,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(16),
+                    bottomLeft: Radius.circular(16))),
+            centerTitle: true,
+          ),
+          backgroundColor: themeProvider.isDark
+              ? AppColors.darkBackground
+              : AppColors.lightBackground,
 
-            SizedBox(
-              height: size!.height * 0.03,
-            ),
-
-            ///---------------BOX------------------///
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+          /// ---- body ---- ///
+          body: Center(
+            child: SingleChildScrollView(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  /// grid view
-                  GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8,
-                      childAspectRatio: 3 / 2,
-                      mainAxisSpacing: 8,
-                    ),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: colors.length,
-                    itemBuilder: (context, index) {
-                      return buildButton(colors[index]);
-                    },
-                  ),
-
                   SizedBox(
-                    height: size!.height * 0.05,
+                    height: size!.height * 0.02,
                   ),
-
-                  /// start button
-                  MyTextButton(
-                    onTap: started
-                        ? () {}
-                        : () async {
-                            AppUtils.playSound(
-                              fileName: "audio/start.mp3",
-                              isMute: isMute,
-                            );
-                            AppUtils.playVibration(
-                              isVibrate: isVibrate,
-                              durationMs: 400,
-                            );
-                            await Future.delayed(Duration(milliseconds: 800));
-                            startGame();
+              
+                  /// score card
+                  ScoreBoardCard(
+                    scoreValue: score,
+                    maxScore: _maxScore,
+                    isGameOver: gameOver,
+                    level: level,
+                  ),
+              
+                  SizedBox(
+                    height: size!.height * 0.02,
+                  ),
+              
+                  ///---------------BOX------------------///
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        /// grid view
+                        GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: 3 / 2,
+                            mainAxisSpacing: 12,
+                          ),
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: colors.length,
+                          itemBuilder: (context, index) {
+                            return Animate(effects: [
+                              ScaleEffect(
+                                duration: 500.milliseconds,
+                                delay: (50 * index).ms,
+                                curve: Curves.easeInSine,
+                              ),
+                            ], child: buildButton(colors[index]));
                           },
-                    btnRipColor: started
-                        ? Colors.grey
-                        : AppColors.lightPrimary.withAlpha(120),
-                    size: size!,
-                    btnColor: started ? Colors.grey : AppColors.darkPrimary,
-                    btnText: gameOver ? "Restart " : "START",
-                    textColor: started ? Colors.black45 : Colors.black,
+                        ),
+              
+                        SizedBox(
+                          height: size!.height * 0.02,
+                        ),
+              
+                        /// start button
+                        MyTextButton(
+                          onTap: started
+                              ? () {}
+                              : () async {
+                                  AppUtils.playSound(
+                                    fileName: "audio/start.mp3",
+                                    isMute: isMute,
+                                  );
+                                  AppUtils.playVibration(
+                                    isVibrate: isVibrate,
+                                    durationMs: 400,
+                                  );
+                                  await Future.delayed(
+                                      Duration(milliseconds: 800));
+                                  startGame();
+                                },
+                          btnRipColor: started
+                              ? Colors.grey
+                              : AppColors.lightPrimary.withAlpha(120),
+                          size: size!,
+                          btnColor: started ? Colors.grey : AppColors.darkPrimary,
+                          btnText: gameOver ? "Restart " : "START",
+                          textColor: started ? Colors.black45 : Colors.black,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

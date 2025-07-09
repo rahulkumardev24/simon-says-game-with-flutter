@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:simon_say_game/helper/colors.dart';
-import 'package:simon_say_game/helper/my_dialogs.dart';
 import 'package:simon_say_game/utils/app_utils.dart';
 import 'package:simon_say_game/utils/custom_text_style.dart';
 import '../../provider/them_provider.dart';
@@ -43,7 +42,7 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
   }
 
   void initData() async {
-    int loadedScore = await AppUtils.loadMaxScore( key: "maxScore");
+    int loadedScore = await AppUtils.loadMaxScore(key: "maxScore");
     bool loadMute = await AppUtils.loadMute();
     bool loadVibrate = await AppUtils.loadVibration();
     setState(() {
@@ -195,136 +194,153 @@ class _SimonSaysGameState extends State<FourBoxScreen> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     mqData = MediaQuery.of(context);
-    return Scaffold(
-      /// --------------------APPBAR------------------------///
-      appBar: AppBar(
-        /// title
-        title: Text(
-          "Simon says",
-          style: myTextStyle24(context,
-              fontColor: Colors.white, fontFamily: "secondary"),
-        ),
-        centerTitle: true,
-        backgroundColor: themeProvider.isDark
-            ? AppColors.darkCardBackground
-            : AppColors.lightPrimary,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(16),
-                bottomLeft: Radius.circular(16))),
-      ),
-      backgroundColor: themeProvider.isDark
-          ? AppColors.darkBackground
-          : AppColors.lightBackground,
-
-      /// ---- body ---- ///
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            /// score card
-            ScoreBoardCard(
-              scoreValue: score,
-              maxScore: _maxScore,
-              isGameOver: gameOver,
-              level: level,
+    return SafeArea(
+      child: Animate(
+        effects: [
+          SlideEffect(
+              duration: 1200.milliseconds,
+              delay: 100.ms,
+              curve: Curves.easeOutExpo)
+        ],
+        child: Scaffold(
+          /// --------------------APPBAR------------------------///
+          appBar: AppBar(
+            /// title
+            title: Text(
+              "Simon says",
+              style: myTextStyle24(context,
+                  fontColor: Colors.white, fontFamily: "secondary"),
             ),
+            centerTitle: true,
+            backgroundColor: themeProvider.isDark
+                ? AppColors.darkCardBackground
+                : AppColors.lightPrimary,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(16),
+                    bottomLeft: Radius.circular(16))),
+          ),
+          backgroundColor: themeProvider.isDark
+              ? AppColors.darkBackground
+              : AppColors.lightBackground,
 
-            SizedBox(
-              height: mqData!.size.height * 0.03,
-            ),
-
-            ///---------------BOX------------------///
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Stack(
-                alignment: Alignment.center,
+          /// ---- body ---- ///
+          body: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  /// grid view
-                  GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 6,
-                      mainAxisSpacing: 6,
-                    ),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: colors.length,
-                    itemBuilder: (context, index) {
-                      return Animate(effects: [
-                        ScaleEffect(
-                          duration: 500.milliseconds,
-                          delay: (50 * index).ms,
-                          curve: Curves.easeInSine,
-                        ),
-                      ], child: buildButton(colors[index]));
-                    },
+                  SizedBox(
+                    height: mqData!.size.height * 0.02,
                   ),
 
-                  /// start button
-                  Animate(
-                    effects: [
-                      ScaleEffect(
-                        duration: 500.milliseconds,
-                        delay: (50).ms,
-                        curve: Curves.easeInSine,
-                      ),
-                    ],
-                    child: GestureDetector(
-                      onTap: started
-                          ? null
-                          : () async {
-                              AppUtils.playSound(
-                                fileName: "audio/start.mp3",
-                                isMute: isMute,
-                              );
-                              AppUtils.playVibration(
-                                isVibrate: isVibrate,
-                                durationMs: 400,
-                              );
+                  /// score card
+                  ScoreBoardCard(
+                    scoreValue: score,
+                    maxScore: _maxScore,
+                    isGameOver: gameOver,
+                    level: level,
+                  ),
 
-                              await Future.delayed(Duration(milliseconds: 800));
-                              startGame();
-                            },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.lightPrimary.withAlpha(120),
-                          shape: BoxShape.circle,
+                  SizedBox(
+                    height: mqData!.size.height * 0.02,
+                  ),
+
+                  ///---------------BOX------------------///
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        /// grid view
+                        GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 6,
+                            mainAxisSpacing: 6,
+                          ),
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: colors.length,
+                          itemBuilder: (context, index) {
+                            return Animate(effects: [
+                              ScaleEffect(
+                                duration: 500.milliseconds,
+                                delay: (50 * index).ms,
+                                curve: Curves.easeInSine,
+                              ),
+                            ], child: buildButton(colors[index]));
+                          },
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            height: mqData!.size.height * 0.15,
-                            width: mqData!.size.height * 0.15,
-                            decoration: BoxDecoration(
-                              color: started
-                                  ? AppColors.lightDisable
-                                      .withValues(alpha: 0.9)
-                                  : AppColors.darkPrimary,
-                              shape: BoxShape.circle,
+
+                        /// start button
+                        Animate(
+                          effects: [
+                            ScaleEffect(
+                              duration: 500.milliseconds,
+                              delay: (50).ms,
+                              curve: Curves.easeInSine,
                             ),
-                            child: Center(
-                              child: Text(
-                                gameOver ? "Restart " : "START",
-                                style: myTextStyle24(context,
-                                    fontColor: started
-                                        ? AppColors.lightTextSecondary
-                                        : AppColors.darkTextPrimary,
-                                    fontWeight: FontWeight.w900),
-                                textAlign: TextAlign.center,
+                          ],
+                          child: GestureDetector(
+                            onTap: started
+                                ? null
+                                : () async {
+                                    AppUtils.playSound(
+                                      fileName: "audio/start.mp3",
+                                      isMute: isMute,
+                                    );
+                                    AppUtils.playVibration(
+                                      isVibrate: isVibrate,
+                                      durationMs: 400,
+                                    );
+
+                                    await Future.delayed(
+                                        Duration(milliseconds: 800));
+                                    startGame();
+                                  },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.lightPrimary.withAlpha(120),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  height: mqData!.size.height * 0.15,
+                                  width: mqData!.size.height * 0.15,
+                                  decoration: BoxDecoration(
+                                    color: started
+                                        ? AppColors.lightDisable
+                                            .withValues(alpha: 0.9)
+                                        : AppColors.darkPrimary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      gameOver ? "Restart " : "START",
+                                      style: myTextStyle24(context,
+                                          fontColor: started
+                                              ? AppColors.lightTextSecondary
+                                              : AppColors.darkTextPrimary,
+                                          fontWeight: FontWeight.w900),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

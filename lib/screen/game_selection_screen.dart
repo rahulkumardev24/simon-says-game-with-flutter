@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -96,37 +95,37 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
     final size = MediaQuery.of(context).size;
     final isDarkMode = themeProvider.isDark;
 
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: size.height * 0.3,
-        flexibleSpace: _buildAppBar(isDarkMode, size),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      backgroundColor:
-          isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      body: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return Opacity(
-            opacity: _opacityAnimation.value,
-            child: Transform.scale(
-              scale: _scaleAnimation.value,
-              child: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      _buildBoxSelectionGrid(themeProvider, size),
-                      SizedBox(height: 40),
-                    ],
+    return SafeArea(
+      child: Scaffold(
+        /// appbar
+        appBar: AppBar(
+          toolbarHeight: size.height * 0.3,
+          flexibleSpace: _buildAppBar(isDarkMode, size),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        backgroundColor:
+            isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+
+        /// body
+        body: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return Opacity(
+              opacity: _opacityAnimation.value,
+              child: Transform.scale(
+                scale: _scaleAnimation.value,
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: _buildBoxSelectionGrid(themeProvider, size),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -155,6 +154,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                 /// volume button
                 MyIconButton(
                     icon: FontAwesomeIcons.volumeLow,
+                    iconSize: size.width * 0.05,
                     iconColor: !isMute
                         ? AppColors.darkIconSecondary.withValues(alpha: 0.6)
                         : isDarkMode
@@ -170,11 +170,14 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                         isMute = !isMute;
                       });
                       AppUtils.saveMute(isMute);
+                      AppUtils.playSound(
+                          fileName: "audio/tap.mp3", isMute: isMute);
                     }),
 
                 /// vibration
                 MyIconButton(
                     icon: Icons.vibration_rounded,
+                    iconSize: size.width * 0.05,
                     iconColor: !isVibrate
                         ? AppColors.darkIconSecondary.withValues(alpha: 0.6)
                         : isDarkMode
@@ -190,6 +193,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                         isVibrate = !isVibrate;
                       });
                       AppUtils.saveVibration(isVibrate);
+                      AppUtils.playVibration(isVibrate: isVibrate);
                     }),
 
                 /// light and dark them
@@ -205,8 +209,11 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                         backgroundColor: isDarkMode
                             ? AppColors.darkPrimary
                             : AppColors.lightBackground.withValues(alpha: 0.9),
+                        iconSize: size.width * 0.05,
                         onTap: () {
                           themeProvider.toggleTheme();
+                          AppUtils.playSound(
+                              fileName: "audio/tap.mp3", isMute: isMute);
                         });
                   },
                 ),
@@ -220,6 +227,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                     backgroundColor: isDarkMode
                         ? AppColors.darkPrimary
                         : AppColors.lightBackground.withValues(alpha: 0.9),
+                    iconSize: size.width * 0.05,
                     onTap: () => MyDialogs.shareApp(context)),
 
                 /// Game Rule
@@ -231,6 +239,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
                     backgroundColor: isDarkMode
                         ? AppColors.darkPrimary
                         : AppColors.lightBackground.withValues(alpha: 0.9),
+                    iconSize: size.width * 0.05,
                     onTap: () => Navigator.push(context,
                         MaterialPageRoute(builder: (_) => GameRulesScreen()))),
               ],
@@ -239,8 +248,9 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
             Spacer(),
             Text(
               "CHOOSE DIFFICULTY",
-              style: myTextStyle24(
+              style: myTextStyleCus(
                 context,
+                fontSize: size.width * 0.06,
                 fontColor: isDarkMode
                     ? AppColors.darkPrimary
                     : AppColors.lightTextPrimary,
@@ -250,9 +260,10 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
             SizedBox(height: 6),
             Text(
               "More boxes = More challenge!",
-              style: myTextStyle18(
+              style: myTextStyleCus(
                 context,
                 fontFamily: "secondary",
+                fontSize: size.width * 0.05,
                 fontWeight: FontWeight.bold,
                 fontColor: isDarkMode
                     ? AppColors.darkTextSecondary
@@ -275,7 +286,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
       crossAxisCount: 2,
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1,
+      childAspectRatio: 3 / 3.2,
       children: availableBoxCounts.map((count) {
         return Animate(
           effects: [
@@ -287,7 +298,10 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
             ),
           ],
           child: GestureDetector(
-            onTap: () => _navigateToGameScreen(count),
+            onTap: () {
+              _navigateToGameScreen(count);
+              AppUtils.playSound(fileName: "audio/drag.mp3", isMute: isMute);
+            },
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
@@ -312,29 +326,36 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  /// index -> Count
                   Text(
                     "$count",
-                    style: myTextStyle36(
+                    style: myTextStyleCus(
                       context,
+                      fontSize: size.width * 0.1,
                       fontColor: themeProvider.isDark
                           ? AppColors.darkPrimary
                           : AppColors.lightPrimary,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  SizedBox(height: 5),
                   Text(
                     "BOXES",
-                    style: myTextStyle18(
+                    style: myTextStyleCus(
                       context,
+                      fontSize: size.width * 0.05,
                       fontColor: themeProvider.isDark
                           ? AppColors.darkTextSecondary
                           : AppColors.lightTextSecondary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 10),
+
+                  SizedBox(
+                    height: size.height * 0.01,
+                  ),
+
                   Container(
                     width: boxCountToMiniGridSize(count),
                     height: boxCountToMiniGridSize(count),
@@ -350,9 +371,10 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
   }
 
   double boxCountToMiniGridSize(int count) {
-    if (count <= 4) return 50;
-    if (count <= 6) return 60;
-    return 70;
+    double screenWidth = MediaQuery.of(context).size.width;
+    if (count <= 4) return screenWidth * 0.15;
+    if (count <= 6) return screenWidth * 0.2;
+    return screenWidth * 0.2;
   }
 
   Widget _buildMiniGrid(int boxCount) {
@@ -365,6 +387,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen>
               : 4,
       mainAxisSpacing: 3,
       crossAxisSpacing: 3,
+      childAspectRatio: 5 / 5,
       shrinkWrap: true,
       children: List.generate(boxCount, (index) {
         return Animate(
