@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.simon_say_game"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -20,8 +20,9 @@ android {
 
     defaultConfig {
         applicationId "com.appcreatorrahul.simonsay"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 21
+        //noinspection OldTargetApi
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
